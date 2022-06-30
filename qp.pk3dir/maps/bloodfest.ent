@@ -1,0 +1,28 @@
+{
+"classname" "worldspawn"
+"message" "Blood fest!"
+}
+{
+"origin" "900 -1000 -1480"
+"classname" "info_player_coop"
+}
+{
+"origin" "900 -1000 -1480"
+"classname" "info_player_deathmatch"
+}
+{
+"origin" "900 -1000 -1480"
+"classname" "info_player_start"
+}
+{
+"classname" "info_monster_start"
+"origin" "900 -1000 -1480"
+}
+{
+"classname" "info_monster_start"
+"origin" "900 -800 -1480"
+}
+{
+"classname" "info_monster_start"
+"origin" "900 -600 -1480"
+}
