@@ -394,24 +394,22 @@ void armor_touch ()
 		if (other.invincible_time > 0)
 			return;
 
-	if (self.classname == "item_armor1")
-	{
+	if (self.classname == "item_armor1") {
 		type = 0.3;
 		value = 100;
 		bit = IT_ARMOR1;
-	}
-	if (self.classname == "item_armor2")
-	{
+	} else if (self.classname == "item_armor2") {
 		type = 0.6;
 		value = 150;
 		bit = IT_ARMOR2;
-	}
-	if (self.classname == "item_armorInv")
-	{
+	} else if (self.classname == "item_armorInv") {
 		type = 0.8;
 		value = 200;
 		bit = IT_ARMOR3;
+	} else {
+		return;
 	}
+
 	if (other.armortype*other.armorvalue >= type*value)
 		return;
 
@@ -559,7 +557,7 @@ float W_BestWeapon ();
 
 void weapon_touch ()
 {
-	float	hadammo, best, new;
+	float	hadammo, best, new = 0;
 	entity	stemp;
 	float	leave;
 

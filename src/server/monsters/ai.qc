@@ -59,15 +59,6 @@ walkmove(angle, speed) primitive is all or nothing
 entity	sight_entity;
 float	sight_entity_time;
 
-float anglemod (float v)
-{
-	while (v >= 360)
-		v = v - 360;
-	while (v < 0)
-		v = v + 360;
-	return v;
-}
-
 /*
 ==============================================================================
 
@@ -313,8 +304,6 @@ void SightSound ()
 		sound (self, CHAN_VOICE, "hknight/sight1.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_tarbaby")
 		sound (self, CHAN_VOICE, "blob/sight1.wav", 1, ATTN_NORM);
-	else if (self.classname == "monster_vomit")
-		sound (self, CHAN_VOICE, "vomitus/v_sight1.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_enforcer")
 	{
 		rsnd = rint(random() * 3);

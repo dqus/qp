@@ -1,4 +1,14 @@
-../../qp.pk3dir/qwprogs.dat
+#pragma target fte
+#pragma progs_dat "../../qp.pk3dir/qwprogs.dat"
+//#pragma autoproto // kinda broken in fteqcc
+
+#pragma warning disable F326 // FIXME: get rid of it.
+
+#define QWSSQC
+
+#includelist
+
+../shared/fteextensions.qc
 
 defs.qc
 defs_ext.qc
@@ -40,3 +50,5 @@ monsters/fish.qc
 monsters/shalrath.qc
 monsters/enforcer.qc
 monsters/oldone.qc
+
+#endlist

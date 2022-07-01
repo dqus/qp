@@ -25,6 +25,7 @@
 
 */
 
+#if 0
 
 void Cmd_Give ()
 {
@@ -220,3 +221,5 @@ float GE_ClientCommand (string cmd, string args)
 
 	return true;
 }
+
+#endif

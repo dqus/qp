@@ -273,7 +273,7 @@ void finale_4 ()
 
 //============================================================================
 
-void nopain ()
+static void nopain (entity attacker, float damage)
 {
 	self.health = 40000;		// kill by telefrag
 }

@@ -36,18 +36,6 @@ void main ()
 
 entity  lastspawn;
 
-void() dummy_checkextension = {	return false; }
-
-void InitExtensions ()
-{
-	if (!cvar("pr_checkextension"))
-		checkextension = dummy_checkextension;
-
-	// This enables the extension in the engine
-	checkextension("ZQ_CLIENTCOMMAND");
-
-}
-
 //=======================
 /*QUAKED worldspawn (0 0 0) ?
 Only used for the world entity.
@@ -63,8 +51,6 @@ World Types:
 void worldspawn ()
 {
 	string	s;
-
-	InitExtensions ();
 
 	lastspawn = world;
 	InitBodyQue ();

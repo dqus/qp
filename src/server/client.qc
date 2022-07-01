@@ -28,7 +28,7 @@
 // prototypes
 void W_WeaponFrame ();
 void W_SetCurrentAmmo ();
-void player_pain ();
+void player_pain (entity attacker, float damage);
 void player_stand1 ();
 void play_teleport (entity ent);
 void spawn_tfog (vector org);
@@ -1298,7 +1298,7 @@ called when a player dies
 void ClientObituary (entity targ, entity attacker)
 {
 	float	rnum;
-	string	deathstring, deathstring2;
+	string	deathstring = " killed by ", deathstring2 = " ???\n";
 	string	attackerteam, targteam;
 
 	if (targ.classname != "player")

@@ -132,8 +132,6 @@ string ObituaryForMonster (string attacker_class)
 		return " was smashed by a Shambler\n";
 	if (attacker_class == "monster_tarbaby")
 		return " was slimed by a Spawn\n";
-	if (attacker_class == "monster_vomit")
-		return " was vomited on by a Vomitus\n";
 	if (attacker_class == "monster_wizard")
 		return " was scragged by a Scrag\n";
 	if (attacker_class == "monster_zombie")
