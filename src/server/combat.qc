@@ -290,12 +290,11 @@ void T_RadiusDamage (entity inflictor, entity attacker, float damage, entity ign
 					if (CanDamage (head, inflictor))
 					{
 						head.deathtype = dtype;
-#ifdef QWSP
-                        // shambler takes half damage from all explosions
-                        if (head.classname == "monster_shambler")
-                            points = points*0.5;
-#endif
-                        T_Damage (head, inflictor, attacker, points);
+						// shambler takes half damage from all explosions
+						if (head.explosionMulti)
+							points *= head.explosionMulti;
+
+						T_Damage (head, inflictor, attacker, points);
 					}
 				}
 			}

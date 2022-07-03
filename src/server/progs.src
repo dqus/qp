@@ -9,6 +9,7 @@
 #includelist
 
 ../shared/fteextensions.qc
+../shared/defs.qc
 
 defs.qc
 coop/defs.qc

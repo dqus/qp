@@ -427,12 +427,16 @@ void T_MissileTouch ()
 		return;
 	}
 
-	damg = 100 + random()*20;
+	damg = 110;
 
-	if (other.health)
+	if (other.health > 0)
 	{
+		// shambler takes half damage from all explosions
+		if (other.explosionMulti)
+			damg *= other.explosionMulti;
+
 		other.deathtype = "rocket";
-		T_Damage (other, self, self.owner, damg );
+		T_Damage (other, self, self.owner, damg);
 	}
 
 	// don't do radius damage to the other, because all the damage

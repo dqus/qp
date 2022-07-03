@@ -499,6 +499,8 @@ float		coop;
 .float		voided;
 .float		walkframe;
 
+.float		suicide_time;	// can't suicide sooner than this
+
 // Zoid Additions
 .float	    gravity;	    // Gravity Multiplier (0 to 1.0)
 
@@ -528,6 +530,8 @@ float		coop;
 .float		air_finished;	// when time > air_finished, start drowning
 .float		bubble_count;	// keeps track of the number of bubbles
 .string 	deathtype;		// keeps track of how the player died
+
+.float		explosionMulti; // explision damage multiplier
 
 //
 // object stuff
@@ -609,12 +613,3 @@ float CanDamage (entity targ, entity inflictor);
 
 // items.qc
 float T_Heal (entity e, float heal_amount, float ignore); // health function
-
-
-//============================================================================
-
-//
-// ZQuake additions
-//
-
-.float suicide_time;	// can't suicide sooner than this
