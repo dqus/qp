@@ -168,24 +168,17 @@ void worldspawn ()
 	precache_model ("progs/v_nail2.mdl");
 	precache_model ("progs/v_rock2.mdl");
 
-#ifdef VWEP_TEST
-    vw_available = checkextension("ZQ_VWEP");
-
-    if (stof(infokey(world, "vwep")) && vw_available > 0)
-    {
-        // precache our vwep models
-        precache_vwep_model ("progs/vwplayer.mdl");  // vwep-enabled player model to use
-        precache_vwep_model ("progs/w_axe.mdl");
-        precache_vwep_model ("progs/w_shot.mdl");
-        precache_vwep_model ("progs/w_shot2.mdl");
-        precache_vwep_model ("progs/w_nail.mdl");
-        precache_vwep_model ("progs/w_nail2.mdl");
-        precache_vwep_model ("progs/w_rock.mdl");
-        precache_vwep_model ("progs/w_rock2.mdl");
-        precache_vwep_model ("progs/w_light.mdl");
-        precache_vwep_model ("-");
-    }
-#endif
+	// precache our vwep models
+	precache_vwep_model ("progs/vwplayer.mdl");  // vwep-enabled player model to use
+	precache_vwep_model ("progs/w_axe.mdl");
+	precache_vwep_model ("progs/w_shot.mdl");
+	precache_vwep_model ("progs/w_shot2.mdl");
+	precache_vwep_model ("progs/w_nail.mdl");
+	precache_vwep_model ("progs/w_nail2.mdl");
+	precache_vwep_model ("progs/w_rock.mdl");
+	precache_vwep_model ("progs/w_rock2.mdl");
+	precache_vwep_model ("progs/w_light.mdl");
+	precache_vwep_model ("-");
 
 	precache_model ("progs/bolt.mdl");				// for lightning gun
 	precache_model ("progs/bolt2.mdl"); 			// for lightning gun

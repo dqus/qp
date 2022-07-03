@@ -1022,14 +1022,18 @@ void CheckPowerups ()
 			self.items = self.items - IT_INVISIBILITY;
 			self.invisible_finished = 0;
 			self.invisible_time = 0;
+			W_SetCurrentAmmo();		// set the correct .vw_index
+			// don't use eyes
+			self.modelindex = modelindex_player;
 		}
-
-	// use the eyes
-		self.frame = 0;
-		self.modelindex = modelindex_eyes;
+		else
+		{
+			// use the eyes
+			self.frame = 0;
+			self.vw_index = 0;
+			self.modelindex = modelindex_eyes;
+		}
 	}
-	else
-		self.modelindex = modelindex_player;    // don't use eyes
 
 // invincibility
 	if (self.invincible_finished)

@@ -544,9 +544,7 @@ void ThrowHead (string gibname, float dm)
 
 void GibPlayer ()
 {
-#ifdef VWEP_TEST
 	self.vw_index = 0;
-#endif
 
 	ThrowHead ("progs/h_player.mdl", self.health);
 	ThrowGib ("progs/gib1.mdl", self.health);
@@ -612,10 +610,7 @@ void PlayerDie ()
 	DropBackpack();
 
 	self.weaponmodel="";
-#ifdef VWEP_TEST
-	if (vw_available != 0)
-		self.vw_index = 9;
-#endif
+	self.vw_index = 9; // null vwep model
 	self.view_ofs = '0 0 -8';
 	self.deadflag = DEAD_DYING;
 	self.solid = SOLID_NOT;

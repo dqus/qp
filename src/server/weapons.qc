@@ -1009,10 +1009,7 @@ void W_SetCurrentAmmo ()
 		self.currentammo = 0;
 		self.weaponmodel = "progs/v_axe.mdl";
 		self.weaponframe = 0;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 1;
-#endif
+		self.vw_index = 1;
 	}
 	else if (self.weapon == IT_SHOTGUN)
 	{
@@ -1020,10 +1017,7 @@ void W_SetCurrentAmmo ()
 		self.weaponmodel = "progs/v_shot.mdl";
 		self.weaponframe = 0;
 		self.items = self.items | IT_SHELLS;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 2;
-#endif
+		self.vw_index = 2;
 	}
 	else if (self.weapon == IT_SUPER_SHOTGUN)
 	{
@@ -1031,10 +1025,7 @@ void W_SetCurrentAmmo ()
 		self.weaponmodel = "progs/v_shot2.mdl";
 		self.weaponframe = 0;
 		self.items = self.items | IT_SHELLS;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 3;
-#endif
+		self.vw_index = 3;
 	}
 	else if (self.weapon == IT_NAILGUN)
 	{
@@ -1042,10 +1033,7 @@ void W_SetCurrentAmmo ()
 		self.weaponmodel = "progs/v_nail.mdl";
 		self.weaponframe = 0;
 		self.items = self.items | IT_NAILS;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 4;
-#endif
+		self.vw_index = 4;
 	}
 	else if (self.weapon == IT_SUPER_NAILGUN)
 	{
@@ -1053,10 +1041,7 @@ void W_SetCurrentAmmo ()
 		self.weaponmodel = "progs/v_nail2.mdl";
 		self.weaponframe = 0;
 		self.items = self.items | IT_NAILS;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 5;
-#endif
+		self.vw_index = 5;
 	}
 	else if (self.weapon == IT_GRENADE_LAUNCHER)
 	{
@@ -1064,10 +1049,7 @@ void W_SetCurrentAmmo ()
 		self.weaponmodel = "progs/v_rock.mdl";
 		self.weaponframe = 0;
 		self.items = self.items | IT_ROCKETS;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 6;
-#endif
+		self.vw_index = 6;
 	}
 	else if (self.weapon == IT_ROCKET_LAUNCHER)
 	{
@@ -1075,10 +1057,7 @@ void W_SetCurrentAmmo ()
 		self.weaponmodel = "progs/v_rock2.mdl";
 		self.weaponframe = 0;
 		self.items = self.items | IT_ROCKETS;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 7;
-#endif
+		self.vw_index = 7;
 	}
 	else if (self.weapon == IT_LIGHTNING)
 	{
@@ -1086,24 +1065,18 @@ void W_SetCurrentAmmo ()
 		self.weaponmodel = "progs/v_light.mdl";
 		self.weaponframe = 0;
 		self.items = self.items | IT_CELLS;
-#ifdef VWEP_TEST
-        if (vw_available > 0)
-            self.vw_index = 8;
-#endif
+		self.vw_index = 8;
 	}
 	else
 	{
 		self.currentammo = 0;
 		self.weaponmodel = "";
 		self.weaponframe = 0;
-#ifdef VWEP_TEST
 		self.vw_index = 0;
-#endif
 	}
-#ifdef VWEP_TEST
-	if (!vw_available || self.invisible_finished)
+
+	if (self.invisible_finished)
 		self.vw_index = 0;
-#endif
 }
 
 float W_BestWeapon ()
