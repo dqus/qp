@@ -11,8 +11,7 @@
 ../shared/fteextensions.qc
 
 defs.qc
-defs_ext.qc
-monsters/sp_defs.qc
+coop/defs.qc
 subs.qc
 
 combat.qc
@@ -29,26 +28,12 @@ plats.qc
 misc.qc
 commands.qc
 
-monsters/sp_subs.qc
-monsters/fight.qc
-monsters/ai.qc
-monsters/sp_client.qc
-monsters/monsters.qc
+coop/subs.qc
+coop/fight.qc
+coop/ai.qc
+coop/client.qc
+coop/monsters.qc
 
-monsters/ogre.qc
-monsters/demon.qc
-monsters/shambler.qc
-monsters/knight.qc
-monsters/soldier.qc
-monsters/wizard.qc
-monsters/dog.qc
-monsters/zombie.qc
-monsters/boss.qc
-monsters/tarbaby.qc
-monsters/hknight.qc
-monsters/fish.qc
-monsters/shalrath.qc
-monsters/enforcer.qc
-monsters/oldone.qc
+coop/monsters/monsters.src
 
 #endlist

@@ -1,0 +1,17 @@
+#includelist
+boss.qc
+demon.qc
+dog.qc
+enforcer.qc
+fish.qc
+hknight.qc
+knight.qc
+ogre.qc
+oldone.qc
+shalrath.qc
+shambler.qc
+soldier.qc
+tarbaby.qc
+wizard.qc
+zombie.qc
+#endlist
