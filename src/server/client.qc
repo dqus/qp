@@ -401,12 +401,6 @@ void ClientKill ()
 
 	bprint (PRINT_MEDIUM, self.netname, " suicides\n");
 
-#ifdef AGRIP
-        agh_player_dietidy();
-        // Don't need to call agh_client_padclients_disconnect
-        // 'cos they're coming right back (we hope...)
-#endif
-
 	set_suicide_frame ();
 	self.modelindex = modelindex_player;
 	logfrag (self, self);
@@ -569,14 +563,6 @@ void PutClientInServer ()
 	self.jump_flag = 0;
 	self.swim_flag = 0;
 
-#ifdef AGRIP
-	// Stop the player from spawning at a bad angle...
-	if (self.angles_y != -90 && self.angles_y != 90
-		&& self.angles_y != 0 &&  self.angles_y != 180
-							&& self.angles_y != -180)
-		self.angles_y = -90;
-#endif
-
 // oh, this is a hack!
 	setmodel (self, "progs/eyes.mdl");
 	modelindex_eyes = self.modelindex;
@@ -650,11 +636,6 @@ void PutClientInServer ()
 		self.invincible_time = 1;
 		self.invincible_finished = time + 3;
 	}
-
-#ifdef AGRIP
-	agh_client_startdevs();
-    agh_client_padclients_connect();
-#endif
 }
 
 
@@ -1225,10 +1206,6 @@ void PlayerPostThink ()
 	CheckPowerups ();
 
 	W_WeaponFrame ();
-
-#ifdef AGRIP
-	snap_misc_blockedtest();
-#endif
 }
 
 
@@ -1274,11 +1251,6 @@ void ClientDisconnect ()
 #ifdef FRIKBOT
 	ClientDisconnected(); // FrikBot
 #endif
-#ifdef AGRIP
-	agh_player_dietidy(); // tidy up before leaving
-    agh_client_padclients_disconnect();
-#endif
-
 	// let everyone else know
 	s = ftos(self.frags);
 	bprint (PRINT_HIGH, self.netname, " left the game with ", s, " frags\n");

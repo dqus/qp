@@ -162,10 +162,6 @@ void()  player_run =[   $rockrun1,      player_run      ]
 		self.frame = self.frame + self.walkframe;
 	}
 	self.walkframe = self.walkframe + 1;
-
-#ifdef AGRIP
-	agh_player_footsteps();
-#endif
 }
 
 void muzzleflash ()
@@ -628,17 +624,13 @@ void PlayerDie ()
 	if (self.velocity_z < 10)
 		self.velocity_z = self.velocity_z + random()*300;
 
-#ifdef AGRIP
-	agh_player_dietidy();
-#endif
-
-    if (self.health < -40 || self.deathtype == "squish")
+	if (self.health < -40 || self.deathtype == "squish")
 	{
 		GibPlayer ();
 		return;
 	}
 
-    DeathSound();
+	DeathSound();
 
 	self.angles_x = 0;
 	self.angles_z = 0;
