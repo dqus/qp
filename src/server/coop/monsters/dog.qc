@@ -319,7 +319,7 @@ float CheckDogJump ()
 	return true;
 }
 
-float DogCheckAttack ()
+static float DogCheckAttack ()
 {
 // if close enough for slashing, go for it
 	if (CheckDogMelee ())
@@ -374,6 +374,7 @@ void monster_dog ()
 	self.th_die = dog_die;
 	self.th_melee = dog_atta1;
 	self.th_missile = dog_leap1;
+	self.th_checkAttack = DogCheckAttack;
 
 	walkmonster_start();
 }

@@ -426,6 +426,61 @@ void ogre_melee ()
 		ogre_swing1 ();
 }
 
+/*
+===========
+OgreCheckAttack
+
+The player is in view, so decide to move or launch an attack
+Returns false if movement should continue
+============
+*/
+static float OgreCheckAttack ()
+{
+	vector	spot1, spot2;
+	entity	targ;
+
+	if (enemy_range == RANGE_MELEE)
+	{
+		if (CanDamage (self.enemy, self))
+		{
+			self.attack_state = AS_MELEE;
+			return true;
+		}
+	}
+
+	if (time < self.attack_finished)
+		return false;
+
+	if (!enemy_vis)
+		return false;
+
+	targ = self.enemy;
+
+// see if any entities are in the way of the shot
+	spot1 = self.origin + self.view_ofs;
+	spot2 = targ.origin + targ.view_ofs;
+
+	traceline (spot1, spot2, false, self);
+
+	if (trace_inopen && trace_inwater)
+		return false;			// sight line crossed contents
+
+	if (trace_ent != targ)
+	{
+		return false;	// don't have a clear shot
+	}
+
+// missile attack
+	if (time < self.attack_finished)
+		return false;
+
+	if (enemy_range == RANGE_FAR)
+		return false;
+
+	self.attack_state = AS_MISSILE;
+	SUB_AttackFinished (1 + 2*random());
+	return true;
+}
 
 /*QUAKED monster_ogre (1 0 0) (-32 -32 -24) (32 32 64) Ambush
 
@@ -464,6 +519,7 @@ void monster_ogre ()
 	self.th_melee = ogre_melee;
 	self.th_missile = ogre_nail1;
 	self.th_pain = ogre_pain;
+	self.th_checkAttack = OgreCheckAttack;
 
 	walkmonster_start();
 }

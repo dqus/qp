@@ -50,6 +50,7 @@ $frame attacka9 attacka10 attacka11 attacka12 attacka13 attacka14 attacka15
 //============================================================================
 
 void Demon_JumpTouch ();
+void Demon_Melee (float side);
 
 void()	demon1_stand1	=[	$stand1,	demon1_stand2	] {ai_stand();}
 void()	demon1_stand2	=[	$stand2,	demon1_stand3	] {ai_stand();}
@@ -191,55 +192,6 @@ void Demon_MeleeAttack ()
 	demon1_atta1 ();
 }
 
-
-/*QUAKED monster_demon1 (1 0 0) (-32 -32 -24) (32 32 64) Ambush
-
-*/
-void monster_demon1 ()
-{
-	if (deathmatch)
-	{
-		remove(self);
-		return;
-	}
-	precache_model ("progs/demon.mdl");
-	precache_model ("progs/h_demon.mdl");
-
-	precache_sound ("demon/ddeath.wav");
-	precache_sound ("demon/dhit2.wav");
-	precache_sound ("demon/djump.wav");
-	precache_sound ("demon/dpain1.wav");
-	precache_sound ("demon/idle1.wav");
-	precache_sound ("demon/sight2.wav");
-
-	self.solid = SOLID_SLIDEBOX;
-	self.movetype = MOVETYPE_STEP;
-
-	setmodel (self, "progs/demon.mdl");
-
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.health = 300;
-
-	self.th_stand = demon1_stand1;
-	self.th_walk = demon1_walk1;
-	self.th_run = demon1_run1;
-	self.th_die = demon_die;
-	self.th_melee = Demon_MeleeAttack;		// one of two attacks
-	self.th_missile = demon1_jump1;			// jump attack
-	self.th_pain = demon1_pain;
-
-	walkmonster_start();
-}
-
-
-/*
-==============================================================================
-
-DEMON
-
-==============================================================================
-*/
-
 /*
 ==============
 CheckDemonMelee
@@ -293,7 +245,7 @@ float CheckDemonJump ()
 	return true;
 }
 
-float DemonCheckAttack ()
+static float DemonCheckAttack ()
 {
 // if close enough for slashing, go for it
 	if (CheckDemonMelee ())
@@ -377,3 +329,42 @@ void Demon_JumpTouch ()
 	self.nextthink = time + 0.1;
 }
 
+/*QUAKED monster_demon1 (1 0 0) (-32 -32 -24) (32 32 64) Ambush
+
+*/
+void monster_demon1 ()
+{
+	if (deathmatch)
+	{
+		remove(self);
+		return;
+	}
+	precache_model ("progs/demon.mdl");
+	precache_model ("progs/h_demon.mdl");
+
+	precache_sound ("demon/ddeath.wav");
+	precache_sound ("demon/dhit2.wav");
+	precache_sound ("demon/djump.wav");
+	precache_sound ("demon/dpain1.wav");
+	precache_sound ("demon/idle1.wav");
+	precache_sound ("demon/sight2.wav");
+
+	self.solid = SOLID_SLIDEBOX;
+	self.movetype = MOVETYPE_STEP;
+
+	setmodel (self, "progs/demon.mdl");
+
+	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
+	self.health = 300;
+
+	self.th_stand = demon1_stand1;
+	self.th_walk = demon1_walk1;
+	self.th_run = demon1_run1;
+	self.th_die = demon_die;
+	self.th_melee = Demon_MeleeAttack;		// one of two attacks
+	self.th_missile = demon1_jump1;			// jump attack
+	self.th_pain = demon1_pain;
+	self.th_checkAttack = DemonCheckAttack;
+
+	walkmonster_start();
+}

@@ -16,12 +16,8 @@
 
     See file, 'COPYING', for details.
 */
-void movetarget_f ();
 void t_movetarget ();
-void knight_walk1 ();
-void knight_bow6 ();
-void knight_bow1 ();
-void T_Damage (entity etemp, entity stemp, entity stemp, float dmg);
+void SUB_AttackFinished (float normal);
 /*
 
 .enemy
@@ -58,6 +54,11 @@ walkmove(angle, speed) primitive is all or nothing
 //
 entity	sight_entity;
 float	sight_entity_time;
+
+float	enemy_vis;
+float	enemy_infront;
+float	enemy_range;
+float	enemy_yaw;
 
 /*
 ==============================================================================
@@ -213,63 +214,6 @@ float infront (entity targ)
 	}
 	return false;
 }
-
-
-//============================================================================
-
-/*
-===========
-ChangeYaw
-
-Turns towards self.ideal_yaw at self.yaw_speed
-Sets the global variable current_yaw
-Called every 0.1 sec by monsters
-============
-*/
-/*
-
-void ChangeYaw ()
-{
-	float	ideal, move;
-
-//current_yaw = self.ideal_yaw;
-// mod down the current angle
-	current_yaw = anglemod( self.angles_y );
-	ideal = self.ideal_yaw;
-
-	if (current_yaw == ideal)
-		return;
-
-	move = ideal - current_yaw;
-	if (ideal > current_yaw)
-	{
-		if (move > 180)
-			move = move - 360;
-	}
-	else
-	{
-		if (move < -180)
-			move = move + 360;
-	}
-
-	if (move > 0)
-	{
-		if (move > self.yaw_speed)
-			move = self.yaw_speed;
-	}
-	else
-	{
-		if (move < 0-self.yaw_speed )
-			move = 0-self.yaw_speed;
-	}
-
-	current_yaw = anglemod (current_yaw + move);
-
-	self.angles_y = current_yaw;
-}
-
-*/
-
 
 //============================================================================
 
@@ -554,38 +498,6 @@ void ai_turn ()
 	ChangeYaw ();
 }
 
-//=============================================================================
-
-/*
-=============
-ChooseTurn
-=============
-*/
-void ChooseTurn (vector dest3)
-{
-	vector	dir, newdir;
-
-	dir = self.origin - dest3;
-
-	newdir_x = trace_plane_normal_y;
-	newdir_y = 0 - trace_plane_normal_x;
-	newdir_z = 0;
-
-	if (dir * newdir > 0)
-	{
-		dir_x = 0 - trace_plane_normal_y;
-		dir_y = trace_plane_normal_x;
-	}
-	else
-	{
-		dir_x = trace_plane_normal_y;
-		dir_y = 0 - trace_plane_normal_x;
-	}
-
-	dir_z = 0;
-	self.ideal_yaw = vectoyaw(dir);
-}
-
 /*
 ============
 FacingIdeal
@@ -602,31 +514,96 @@ float FacingIdeal ()
 	return true;
 }
 
-
 //=============================================================================
 
-float WizardCheckAttack ();
-float DogCheckAttack ();
+/*
+===========
+CheckAttack
+
+The player is in view, so decide to move or launch an attack
+Returns false if movement should continue
+============
+*/
+static float CheckAttack ()
+{
+	vector	spot1, spot2;
+	entity	targ;
+	float	chance;
+
+	targ = self.enemy;
+
+// see if any entities are in the way of the shot
+	spot1 = self.origin + self.view_ofs;
+	spot2 = targ.origin + targ.view_ofs;
+
+	traceline (spot1, spot2, false, self);
+
+	if (trace_ent != targ)
+		return false;		// don't have a clear shot
+
+	if (trace_inopen && trace_inwater)
+		return false;			// sight line crossed contents
+
+	if (enemy_range == RANGE_MELEE)
+	{	// melee attack
+		if (self.th_melee)
+		{
+			self.th_melee ();
+			return true;
+		}
+	}
+
+// missile attack
+	if (!self.th_missile)
+		return false;
+
+	if (time < self.attack_finished)
+		return false;
+
+	if (enemy_range == RANGE_FAR)
+		return false;
+
+	if (enemy_range == RANGE_MELEE)
+	{
+		chance = 0.9;
+		self.attack_finished = 0;
+	}
+	else if (enemy_range == RANGE_NEAR)
+	{
+		if (self.th_melee)
+			chance = 0.2;
+		else
+			chance = 0.4;
+	}
+	else if (enemy_range == RANGE_MID)
+	{
+		if (self.th_melee)
+			chance = 0.05;
+		else
+			chance = 0.1;
+	}
+	else
+		chance = 0;
+
+	if (random () < chance)
+	{
+		self.th_missile ();
+		SUB_AttackFinished (2*random());
+		return true;
+	}
+
+	return false;
+}
 
 float CheckAnyAttack ()
 {
 	if (!enemy_vis)
 		return false;
-	if (self.classname == "monster_army")
-		return SoldierCheckAttack ();
-	if (self.classname == "monster_ogre")
-		return OgreCheckAttack ();
-	if (self.classname == "monster_shambler")
-		return ShamCheckAttack ();
-	if (self.classname == "monster_demon1")
-		return DemonCheckAttack ();
-	if (self.classname == "monster_dog")
-		return DogCheckAttack ();
-	if (self.classname == "monster_wizard")
-		return WizardCheckAttack ();
+	if (self.th_checkAttack)
+		return self.th_checkAttack();
+	// If monster does't have own check attack then use default one.
 	return CheckAttack ();
 }
-
 
 /*
 =============
@@ -768,3 +745,113 @@ void ai_run (float dist)
 	movetogoal (dist);		// done in C code...
 }
 
+/*
+=============
+ai_face
+
+Stay facing the enemy
+=============
+*/
+void ai_face ()
+{
+	self.ideal_yaw = vectoyaw(self.enemy.origin - self.origin);
+	ChangeYaw ();
+}
+
+/*
+=============
+ai_charge
+
+The monster is in a melee attack, so get as close as possible to .enemy
+=============
+*/
+void ai_charge (float d)
+{
+	ai_face ();
+	movetogoal (d);		// done in C code...
+}
+
+void ai_charge_side ()
+{
+	vector	dtemp;
+	float	heading;
+
+// aim to the left of the enemy for a flyby
+
+	self.ideal_yaw = vectoyaw(self.enemy.origin - self.origin);
+	ChangeYaw ();
+
+	makevectors (self.angles);
+	dtemp = self.enemy.origin - 30*v_right;
+	heading = vectoyaw(dtemp - self.origin);
+
+	walkmove(heading, 20);
+}
+
+/*
+=============
+ai_melee
+
+=============
+*/
+void ai_melee ()
+{
+	vector	delta;
+	float	ldmg;
+
+	if (!self.enemy)
+		return;		// removed before stroke
+
+	delta = self.enemy.origin - self.origin;
+
+	if (vlen(delta) > 60)
+		return;
+
+	ldmg = (random() + random() + random()) * 3;
+	T_Damage (self.enemy, self, self, ldmg);
+}
+
+void ai_melee_side ()
+{
+	vector	delta;
+	float	ldmg;
+
+	if (!self.enemy)
+		return;		// removed before stroke
+
+	ai_charge_side();
+
+	delta = self.enemy.origin - self.origin;
+
+	if (vlen(delta) > 60)
+		return;
+	if (!CanDamage (self.enemy, self))
+		return;
+	ldmg = (random() + random() + random()) * 3;
+	T_Damage (self.enemy, self, self, ldmg);
+}
+
+/*
+
+in nightmare mode, all attack_finished times become 0
+some monsters refire twice automatically
+
+*/
+void SUB_AttackFinished (float normal)
+{
+	self.cnt = 0;		// refire count for nightmare
+	if (skill != 3)
+		self.attack_finished = time + normal;
+}
+
+void SUB_CheckRefire (void() thinkst)
+{
+	if (skill != 3)
+		return;
+	if (self.cnt == 1)
+		return;
+	if (!visible (self.enemy))
+		return;
+	self.cnt = 1;
+	self.think = thinkst;
+}

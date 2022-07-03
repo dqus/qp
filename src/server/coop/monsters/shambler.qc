@@ -339,6 +339,62 @@ void sham_die ()
 	sham_death1 ();
 }
 
+/*
+===========
+ShamCheckAttack
+
+The player is in view, so decide to move or launch an attack
+Returns false if movement should continue
+============
+*/
+static float ShamCheckAttack ()
+{
+	vector	spot1, spot2;
+	entity	targ;
+
+	if (enemy_range == RANGE_MELEE)
+	{
+		if (CanDamage (self.enemy, self))
+		{
+			self.attack_state = AS_MELEE;
+			return true;
+		}
+	}
+
+	if (time < self.attack_finished)
+		return false;
+
+	if (!enemy_vis)
+		return false;
+
+	targ = self.enemy;
+
+// see if any entities are in the way of the shot
+	spot1 = self.origin + self.view_ofs;
+	spot2 = targ.origin + targ.view_ofs;
+
+	if (vlen(spot1 - spot2) > 600)
+		return false;
+
+	traceline (spot1, spot2, false, self);
+
+	if (trace_inopen && trace_inwater)
+		return false;			// sight line crossed contents
+
+	if (trace_ent != targ)
+	{
+		return false;	// don't have a clear shot
+	}
+
+// missile attack
+	if (enemy_range == RANGE_FAR)
+		return false;
+
+	self.attack_state = AS_MISSILE;
+	SUB_AttackFinished (2 + 2*random());
+	return true;
+}
+
 //============================================================================
 
 
@@ -380,6 +436,7 @@ void monster_shambler ()
 	self.th_melee = sham_melee;
 	self.th_missile = sham_magic1;
 	self.th_pain = sham_pain;
+	self.th_checkAttack = ShamCheckAttack;
 
 	walkmonster_start();
 }

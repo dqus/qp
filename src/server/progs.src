@@ -28,8 +28,6 @@ plats.qc
 misc.qc
 commands.qc
 
-coop/subs.qc
-coop/fight.qc
 coop/ai.qc
 coop/client.qc
 coop/monsters.qc

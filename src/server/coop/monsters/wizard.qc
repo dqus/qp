@@ -104,7 +104,7 @@ void wiz_side1 ();
 WizardCheckAttack
 =================
 */
-float WizardCheckAttack ()
+static float WizardCheckAttack ()
 {
 	vector	spot1, spot2;
 	entity	targ;
@@ -427,6 +427,7 @@ void monster_wizard ()
 	self.th_missile = Wiz_Missile;
 	self.th_pain = Wiz_Pain;
 	self.th_die = wiz_die;
+	self.th_checkAttack = WizardCheckAttack;
 
 	flymonster_start ();
 }

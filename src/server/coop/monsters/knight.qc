@@ -143,6 +143,19 @@ void()	knight_atk10=[	$attackb10,		knight_run1	] {ai_charge(5);}
 //void()	knight_atk10	=[	$attack10,		knight_atk11	] {}
 //void()	knight_atk11	=[	$attack11,		knight_run1	] {}
 
+void knight_attack ()
+{
+	float	len;
+
+// decide if now is a good swing time
+	len = vlen(self.enemy.origin+self.enemy.view_ofs - (self.origin+self.view_ofs));
+
+	if (len<80)
+		knight_atk1 ();
+	else
+		knight_runatk1 ();
+}
+
 //===========================================================================
 
 void()	knight_pain1	=[	$pain1,		knight_pain2	] {}
@@ -280,7 +293,7 @@ void monster_knight ()
 	self.th_stand = knight_stand1;
 	self.th_walk = knight_walk1;
 	self.th_run = knight_run1;
-	self.th_melee = knight_atk1;
+	self.th_melee = knight_attack;
 	self.th_pain = knight_pain;
 	self.th_die = knight_die;
 

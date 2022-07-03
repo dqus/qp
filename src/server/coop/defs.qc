@@ -14,6 +14,7 @@ float	movedist;
 .void() 	th_run;
 .void() 	th_missile;
 .void() 	th_melee;
+.float() 	th_checkAttack;
 
 .entity 	oldenemy;		// mad at this player before taking damage
 
