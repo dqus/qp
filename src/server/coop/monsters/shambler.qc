@@ -236,50 +236,52 @@ void CastLightning ()
 	LightningDamage (org, trace_endpos, self, 10);
 }
 
-void() sham_magic1     =[      $magic1,       sham_magic2    ] {ai_face();
+static void sham_animate_light_entity()
+{
+	if (self.frame >= 2) {
+		remove(self);
+		return;
+	}
+	self.frame++;
+	self.nextthink = time + 0.1;
+}
+
+void() sham_magic1     =[      $magic1,       sham_magic2    ]
+{
+	ai_face();
 	sound (self, CHAN_WEAPON, "shambler/sattck1.wav", 1, ATTN_NORM);
 }
 void() sham_magic2     =[      $magic2,       sham_magic3    ] {ai_face();}
-void() sham_magic3     =[      $magic3,       sham_magic4    ] {ai_face();self.nextthink = time + 0.2;
-entity	o;
+void() sham_magic3     =[      $magic3,       sham_magic4    ] {
+	muzzleflash();
+	ai_face();
+	ai_face();
 
-muzzleflash();
-ai_face();
-self.owner = spawn();
-o = self.owner;
-setmodel (o, "progs/s_light.mdl");
-setorigin (o, self.origin);
-o.angles = self.angles;
-o.nextthink = time + 0.7;
-o.think = SUB_Remove;
+	self.nextthink = time + 0.2; // 0.2 ???
+
+	entity o = spawn();
+//	o.owner = self;
+	setmodel(o, "progs/s_light.mdl");
+	setorigin(o, self.origin);
+	o.angles = self.angles;
+	o.nextthink = self.nextthink;
+	o.think = sham_animate_light_entity;
 }
-void() sham_magic4     =[      $magic4,       sham_magic5    ]
-{
-muzzleflash();
-self.owner.frame = 1;
-}
-void() sham_magic5     =[      $magic5,       sham_magic6    ]
-{
-muzzleflash();
-self.owner.frame = 2;
-}
+void() sham_magic4     =[      $magic4,       sham_magic5    ] {muzzleflash();}
+void() sham_magic5     =[      $magic5,       sham_magic6    ] {muzzleflash();}
 void() sham_magic6     =[      $magic6,       sham_magic9    ]
 {
-remove (self.owner);
-CastLightning();
-sound (self, CHAN_WEAPON, "shambler/sboom.wav", 1, ATTN_NORM);
+	CastLightning();
+	sound(self, CHAN_WEAPON, "shambler/sboom.wav", 1, ATTN_NORM);
 }
-void() sham_magic9     =[      $magic9,       sham_magic10   ]
-{CastLightning();}
-void() sham_magic10    =[      $magic10,      sham_magic11   ]
-{CastLightning();}
+void() sham_magic9     =[      $magic9,       sham_magic10   ] {CastLightning();}
+void() sham_magic10    =[      $magic10,      sham_magic11   ] {CastLightning();}
 void() sham_magic11    =[      $magic11,      sham_magic12   ]
 {
-if (skill == 3)
-	CastLightning();
+	if (skill == 3)
+		CastLightning();
 }
 void() sham_magic12    =[      $magic12,      sham_run1	   ] {}
-
 
 
 void() sham_pain1       =[      $pain1, sham_pain2      ] {}
