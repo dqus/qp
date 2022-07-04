@@ -636,6 +636,12 @@ void PutClientInServer ()
 		self.invincible_time = 1;
 		self.invincible_finished = time + 3;
 	}
+
+	if (isQP()) {
+		self.items |= IT_QUAD;
+		self.super_time = 1;
+		self.super_damage_finished = 99999999; // infinity.
+	}
 }
 
 
