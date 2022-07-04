@@ -87,11 +87,8 @@ void walkmonster_start_go ()
 		dPrintf("walkmonster:%s droptofloor failed at:%v\n", self.classname, self.origin);
 	}
 
-	if (!walkmove(0,0))
-	{
-		dprint ("walkmonster in wall at: ");
-		dprint (vtos(self.origin));
-		dprint ("\n");
+	if (!walkmove(0,0))	{
+		dPrintf("walkmonster:%s in wall at:%v\n", self.classname, self.origin);
 	}
 
 	self.takedamage = DAMAGE_AIM;
