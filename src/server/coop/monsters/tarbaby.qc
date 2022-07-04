@@ -44,9 +44,12 @@ $frame fly1 fly2 fly3 fly4
 
 $frame exp
 
-void()	tbaby_stand1	=[	$walk1,		tbaby_stand1	] {ai_stand();}
-
-void()	tbaby_hang1		=[	$walk1,		tbaby_hang1	] {ai_stand();}
+// well, in original quake tarbaby have single stand frame = walk1,
+// that was boring so I replaced it with few frames of run sequence.
+void()	tbaby_stand1	=[	$run1,		tbaby_stand2	] {ai_stand();}
+void()	tbaby_stand2	=[	$run2,		tbaby_stand3	] {ai_stand();}
+void()	tbaby_stand3	=[	$run3,		tbaby_stand4	] {ai_stand();}
+void()	tbaby_stand4	=[	$run2,		tbaby_stand1	] {ai_stand();}
 
 void()	tbaby_walk1	=[	$walk1,		tbaby_walk2	] {ai_turn();}
 void()	tbaby_walk2	=[	$walk2,		tbaby_walk3	] {ai_turn();}
@@ -74,7 +77,12 @@ void()	tbaby_walk23	=[	$walk23,		tbaby_walk24	] {ai_walk(2);}
 void()	tbaby_walk24	=[	$walk24,		tbaby_walk25	] {ai_walk(2);}
 void()	tbaby_walk25	=[	$walk25,		tbaby_walk1	] {ai_walk(2);}
 
-void()	tbaby_run1	=[	$run1,		tbaby_run2	] {ai_face();}
+void()	tbaby_run1	=[	$run1,		tbaby_run2	]
+{
+	// Return movetype to MOVETYPE_STEP since tbaby_jump5() probably changed it to MOVETYPE_BOUNCE.
+	self.movetype = MOVETYPE_STEP;
+	ai_face();
+}
 void()	tbaby_run2	=[	$run2,		tbaby_run3	] {ai_face();}
 void()	tbaby_run3	=[	$run3,		tbaby_run4	] {ai_face();}
 void()	tbaby_run4	=[	$run4,		tbaby_run5	] {ai_face();}
@@ -122,42 +130,42 @@ void Tar_JumpTouch ()
 	else
 		sound (self, CHAN_WEAPON, "blob/land1.wav", 1, ATTN_NORM);
 
-
 	if (!checkbottom(self))
 	{
 		if (self.flags & FL_ONGROUND)
 		{	// jump randomly to not get hung up
-//dprint ("popjump\n");
-	self.touch = SUB_Null;
-	self.think = tbaby_run1;
-	self.movetype = MOVETYPE_STEP;
-	self.nextthink = time + 0.1;
-
-//			self.velocity_x = (random() - 0.5) * 600;
-//			self.velocity_y = (random() - 0.5) * 600;
-//			self.velocity_z = 200;
-//			self.flags = self.flags - FL_ONGROUND;
+			self.touch = SUB_Null;
+//			bPrintf(PRINT_HIGH, "Tar_JumpTouch: run1 !checkbottom()\n");
+			tbaby_run1();
 		}
 		return;	// not on ground yet
 	}
 
 	self.touch = SUB_Null;
-	self.think = tbaby_jump1;
-	self.nextthink = time + 0.1;
+	if (isInvalidEnemy(self.enemy)) {
+//		bPrintf(PRINT_HIGH, "Tar_JumpTouch: run1 isInvalidEnemy()\n");
+		tbaby_run1();
+	} else {
+//		bPrintf(PRINT_HIGH, "Tar_JumpTouch: jump1\n");
+		tbaby_jump1();
+	}
 }
 
 void()	tbaby_jump5;
 
-void()	tbaby_fly1		=[	$fly1,	tbaby_fly2	] {}
-void()	tbaby_fly2		=[	$fly2,	tbaby_fly3	] {}
-void()	tbaby_fly3		=[	$fly3,	tbaby_fly4	] {}
-void()	tbaby_fly4		=[	$fly4,	tbaby_fly1	] {
-self.cnt = self.cnt + 1;
-if (self.cnt == 4)
+void()	tbaby_fly1		=[	$fly1,	tbaby_fly2	] {ai_face();}
+void()	tbaby_fly2		=[	$fly2,	tbaby_fly3	] {ai_face();}
+void()	tbaby_fly3		=[	$fly3,	tbaby_fly4	] {ai_face();}
+void()	tbaby_fly4		=[	$fly4,	tbaby_fly1	]
 {
-//dprint ("spawn hop\n");
-tbaby_jump5 ();
-}
+	ai_face();
+
+	self.cnt = self.cnt + 1;
+	if (self.cnt >= 4)
+	{
+//		bPrintf(PRINT_HIGH, "tbaby_fly4: run1\n");
+		tbaby_run1();
+	}
 }
 
 void()	tbaby_jump1		=[	$jump1,	tbaby_jump2		] {ai_face();}

@@ -436,6 +436,9 @@ entity SelectSpawnPoint ()
 		if (coop)
 		{
 			lastspawn = find(lastspawn, classname, "info_player_coop");
+			// We either does not have coop spots or have to search from the world again in order to find first coop spot.
+			if (lastspawn == world)
+				lastspawn = find (lastspawn, classname, "info_player_coop");
 			if (lastspawn == world)
 				lastspawn = find (lastspawn, classname, "info_player_start");
 			if (lastspawn != world)
