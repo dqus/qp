@@ -293,8 +293,6 @@ void() sham_pain6       =[      $pain6, sham_run1      ] {}
 
 void sham_pain (entity attacker, float damage)
 {
-	sound (self, CHAN_VOICE, "shambler/shurt2.wav", 1, ATTN_NORM);
-
 	if (self.health <= 0)
 		return;		// already dying, don't go into pain frame
 
@@ -304,6 +302,8 @@ void sham_pain (entity attacker, float damage)
 	if (self.pain_finished > time)
 		return;
 	self.pain_finished = time + 2;
+
+	sound (self, CHAN_VOICE, "shambler/shurt2.wav", 1, ATTN_NORM);
 
 	sham_pain1 ();
 }
@@ -430,7 +430,7 @@ void monster_shambler ()
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 600;
-	self.explosionMulti = 0.5;
+	self.explosionMulti = isQP() ? 0 : 0.5;
 
 	self.th_stand = sham_stand1;
 	self.th_walk = sham_walk1;
