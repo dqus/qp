@@ -189,11 +189,14 @@ void T_Damage (entity targ, entity inflictor, entity attacker, float damage)
 
 
 // figure momentum add
-	if ( (inflictor != world) && (targ.movetype == MOVETYPE_WALK) )
+	if (inflictor != world
+		&& (targ.movetype == MOVETYPE_WALK || (isQP() && (targ.flags & FL_MONSTER))))
 	{
 		dir = targ.origin - (inflictor.absmin + inflictor.absmax) * 0.5;
 		dir = normalize(dir);
 		targ.velocity = targ.velocity + dir * damage * 8;
+		if (isQP() && (targ.flags & FL_MONSTER))
+			targ.flags &= ~FL_ONGROUND;
 	}
 
 
