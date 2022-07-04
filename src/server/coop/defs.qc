@@ -45,3 +45,5 @@ entity qp_checkclient(void);
 bool remove_monster_if_location_occupied(void);
 // Init body fading in qp mode.
 void monster_init_fade(entity e);
+// called each time something/someone is killed.
+void qp_killed_hook(entity killed, entity attacker);

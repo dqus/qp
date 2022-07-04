@@ -89,9 +89,64 @@ static monster_t monsters[] =
 	},
 };
 
+// find monster_t in array by classname.
+static monster_t *qp_find_monster_by_classname(string classname)
+{
+	for (int i = 0; i < monsters.length; i++) {
+		if (monsters[i].classname == classname)
+			return &monsters[i];
+	}
+	return __NULL__;
+}
+
 bool isQP()
 {
 	return getkey(mode) == "qp";
+}
+
+// called each time something/someone is killed.
+void qp_killed_hook(entity killed, entity attacker)
+{
+	if (serverstate != SS_PLAYING)
+		return;
+
+	// if killed was a player then check for endmatch.
+	if (killed.flags & FL_CLIENT)
+	{
+//		qp_check_end_match();
+		return;
+	}
+
+	// alive players regen health for killing monsters.
+	if (isDead(attacker) || !(attacker.flags & FL_CLIENT))
+		return;
+	// 'killed' could be a monter or trigger, we need monster.
+	if (!(killed.flags & FL_MONSTER))
+		return;
+
+	monster_t *monster = qp_find_monster_by_classname(killed.classname);
+	if (!monster)
+		return; // monster not found, should not be the case.
+
+	if (attacker.health < 250 && monster->hp_for_kill > 0)
+	{
+		attacker.health += monster->hp_for_kill;
+		attacker.health = min(attacker.health, 250); // cap it at 250
+	}
+
+	if (attacker.armorvalue < 200 && monster->armor_for_kill > 0)
+	{
+		attacker.armorvalue += monster->armor_for_kill;
+		attacker.armorvalue = min(attacker.armorvalue, 200); // cap it at 200
+		// remove all armors and add red armor.
+		attacker.items &= ~(IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3);
+		attacker.items |= IT_ARMOR3;
+		attacker.armortype = 0.8;
+	}
+
+	// bump the score according to monster difficulty
+	if (monster->hp_for_kill > 1)
+		attacker.frags += monster->hp_for_kill - 1;
 }
 
 // Find best enemy for monster.

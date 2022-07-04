@@ -122,6 +122,9 @@ void Killed (entity targ, entity attacker)
 	self.th_die ();
 
 	self = oself;
+
+	if (isQP())
+		qp_killed_hook(targ, attacker);
 }
 
 
