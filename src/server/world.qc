@@ -260,6 +260,10 @@ void StartFrame ()
 
 	framecount = framecount + 1;
 
+	serverstate = framecount > 100 ? SS_PLAYING : SS_PREWAR;
+
+	qp_think();
+
 	if (deathmatch && timelimit && time >= timelimit)
 		NextLevel ();
 }

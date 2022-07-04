@@ -349,7 +349,7 @@ void W_FireShotgun ()
 	msg_entity = self;
 	WriteByte (MSG_ONE, SVC_SMALLKICK);
 
-	if (deathmatch != 4 )
+	if (deathmatch != 4 && !isQP())
 		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 
 	dir = aim (self, 100000);
@@ -377,7 +377,7 @@ void W_FireSuperShotgun ()
 	msg_entity = self;
 	WriteByte (MSG_ONE, SVC_BIGKICK);
 
-	if (deathmatch != 4)
+	if (deathmatch != 4 && !isQP())
 		self.currentammo = self.ammo_shells = self.ammo_shells - 2;
 	dir = aim (self, 100000);
 	FireBullets (14, dir, '0.14 0.08 0');
@@ -466,7 +466,7 @@ W_FireRocket
 */
 void W_FireRocket ()
 {
-	if (deathmatch != 4)
+	if (deathmatch != 4 && !isQP())
 		self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 
 	sound (self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
@@ -616,7 +616,7 @@ void W_FireLightning ()
 	msg_entity = self;
 	WriteByte (MSG_ONE, SVC_SMALLKICK);
 
-	if (deathmatch != 4)
+	if (deathmatch != 4 && !isQP())
 		self.currentammo = self.ammo_cells = self.ammo_cells - 1;
 
 	org = self.origin + '0 0 16';
@@ -683,7 +683,7 @@ void W_FireGrenade ()
 {
 	vector	ang;
 
-	if (deathmatch != 4)
+	if (deathmatch != 4 && !isQP())
 		self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 
 	sound (self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
@@ -782,7 +782,7 @@ void W_FireSuperSpikes ()
 
 	sound (self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 	self.attack_finished = time + 0.2;
-	if (deathmatch != 4)
+	if (deathmatch != 4 && !isQP())
 		self.currentammo = self.ammo_nails = self.ammo_nails - 2;
 	dir = aim (self, 1000);
 	launch_spike (self.origin + '0 0 16', dir);
@@ -815,7 +815,7 @@ void W_FireSpikes (float ox)
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	self.attack_finished = time + 0.2;
-	if (deathmatch != 4)
+	if (deathmatch != 4 && !isQP())
 		self.currentammo = self.ammo_nails = self.ammo_nails - 1;
 	dir = aim (self, 1000);
 	launch_spike (self.origin + '0 0 16' + v_right*ox, dir);

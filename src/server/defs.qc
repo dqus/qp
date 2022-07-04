@@ -593,6 +593,27 @@ float		coop;
 
 //============================================================================
 
+typedef enum
+{
+	SS_PREWAR = 0,
+	SS_COUNTDOWN = 1,
+	SS_PLAYING = 2,
+} serverstate_t;
+
+serverstate_t serverstate;
+
+//
+// Helpers.
+//
+
+// Client printf.
+#define cPrintf(client, lv, ...) sprint(client, lv, sprintf(__VA_ARGS__))
+// Broadcast printf.
+#define bPrintf(lv, ...) bprint(lv, sprintf(__VA_ARGS__))
+// Debug print(f).
+void dPrint(string s) { if (cvar("developer")) print("DEBUG: ", s); };
+#define dPrintf(...) dPrint(sprintf(__VA_ARGS__))
+
 //
 // forward declarations
 //

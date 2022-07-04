@@ -42,9 +42,7 @@ void monster_use ()
 		return;
 	if (self.health <= 0)
 		return;
-	if (activator.items & IT_INVISIBILITY)
-		return;
-	if (activator.flags & FL_NOTARGET)
+	if (isInvalidEnemy(activator))
 		return;
 	if (activator.classname != "player")
 		return;
@@ -84,8 +82,10 @@ void monster_death_use ()
 
 void walkmonster_start_go ()
 {
-	self.origin_z = self.origin_z + 1;	// raise off floor a bit
-	droptofloor();
+	setorigin(self, self.origin + [0, 0, 1]); // raise off floor a bit
+	if (!droptofloor()) {
+		dPrintf("walkmonster:%s droptofloor failed at:%v\n", self.classname, self.origin);
+	}
 
 	if (!walkmove(0,0))
 	{
@@ -134,11 +134,17 @@ void walkmonster_start_go ()
 
 void walkmonster_start ()
 {
+	if (remove_monster_if_location_occupied())
+		return;
 // delay drop to floor to make sure all doors have been spawned
 // spread think times so they don't all happen at same time
 	self.nextthink = time + 0.1 + random()*0.5;
 	self.think = walkmonster_start_go;
-	total_monsters = total_monsters + 1;
+	if (isQP())	{
+		self.think();
+	} else {
+		total_monsters = total_monsters + 1;
+	}
 }
 
 
@@ -185,24 +191,24 @@ void flymonster_start_go ()
 
 void flymonster_start ()
 {
+	if (remove_monster_if_location_occupied())
+		return;
 // set FL_FLY early so that we're not affected by gravity
 	self.flags = self.flags | (FL_FLY | FL_MONSTER);
 
 // spread think times so they don't all happen at same time
 	self.nextthink = time + 0.1 + random()*0.5;
 	self.think = flymonster_start_go;
-	total_monsters = total_monsters + 1;
+	if (isQP())	{
+		self.think();
+	} else {
+		total_monsters = total_monsters + 1;
+	}
 }
 
 
 void swimmonster_start_go ()
 {
-	if (deathmatch)
-	{
-		remove(self);
-		return;
-	}
-
 	self.takedamage = DAMAGE_AIM;
 
 	self.ideal_yaw = self.angles * '0 1 0';
@@ -236,13 +242,17 @@ void swimmonster_start_go ()
 
 void swimmonster_start ()
 {
+	if (remove_monster_if_location_occupied())
+		return;
 // set FL_SWIM early so that we're not affected by gravity
 	self.flags = self.flags | (FL_SWIM | FL_MONSTER);
 
 // spread think times so they don't all happen at same time
 	self.nextthink = time + 0.1 + random()*0.5;
 	self.think = swimmonster_start_go;
-	total_monsters = total_monsters + 1;
+	if (isQP())	{
+		self.think();
+	} else {
+		total_monsters = total_monsters + 1;
+	}
 }
-
-

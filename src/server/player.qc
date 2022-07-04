@@ -518,11 +518,11 @@ void ThrowGib (string gibname, float dm)
 	new.avelocity_x = random()*600;
 	new.avelocity_y = random()*600;
 	new.avelocity_z = random()*600;
-	new.think = SUB_Remove;
 	new.ltime = time;
-	new.nextthink = time + 10 + random()*10;
 	new.frame = 0;
 	new.flags = 0;
+
+	monster_init_fade(new);
 }
 
 void ThrowHead (string gibname, float dm)
@@ -539,6 +539,9 @@ void ThrowHead (string gibname, float dm)
 	self.origin_z = self.origin_z - 24;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.avelocity = crandom() * '0 600 0';
+
+	if (self.flags & FL_MONSTER)
+		monster_init_fade(self);
 }
 
 

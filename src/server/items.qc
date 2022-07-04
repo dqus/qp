@@ -1618,6 +1618,9 @@ void DropBackpack ()
 {
 	entity	item;
 
+	if (isQP())
+		return;
+
 	if (!(self.ammo_shells + self.ammo_nails + self.ammo_rockets + self.ammo_cells)
 			&& !(self.weapon & IT_DROPPABLE_WEAPONS))
 		return; // nothing in it

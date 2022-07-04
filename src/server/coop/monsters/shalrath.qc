@@ -102,7 +102,7 @@ void() shal_death3      =[      $death3,        shal_death4     ] {}
 void() shal_death4      =[      $death4,        shal_death5     ] {}
 void() shal_death5      =[      $death5,        shal_death6     ] {}
 void() shal_death6      =[      $death6,        shal_death7     ] {}
-void() shal_death7      =[      $death7,        shal_death7    ] {}
+void() shal_death7      =[      $death7,        shal_death7    ] {monster_init_fade(self);}
 
 
 void shalrath_pain (entity attacker, float damage)
@@ -248,7 +248,5 @@ void monster_shalrath ()
 	self.th_pain = shalrath_pain;
 	self.th_missile = shal_attack1;
 
-	self.think = walkmonster_start;
-	self.nextthink = time + 0.1 + random ()*0.1;
-
+	walkmonster_start();
 }

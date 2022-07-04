@@ -13,7 +13,9 @@
 
 defs.qc
 coop/defs.qc
+cfg.qc
 subs.qc
+helpers.qc
 
 combat.qc
 items.qc
@@ -34,5 +36,7 @@ coop/client.qc
 coop/monsters.qc
 
 coop/monsters/monsters.src
+
+coop/qp.qc
 
 #endlist

@@ -591,7 +591,7 @@ void PutClientInServer ()
 
 	spawn_tdeath (self.origin, self);
 
-	if (deathmatch == 4)
+	if (deathmatch == 4 || isQP())
 	{
 		self.ammo_shells = 0;
 		if (stof(infokey(world, "axe")) == 0)
@@ -604,7 +604,7 @@ void PutClientInServer ()
 			self.items = self.items | IT_SUPER_NAILGUN;
 			self.items = self.items | IT_SUPER_SHOTGUN;
 			self.items = self.items | IT_ROCKET_LAUNCHER;
-//		self.items = self.items | IT_GRENADE_LAUNCHER;
+			self.items = self.items | IT_GRENADE_LAUNCHER;
 			self.items = self.items | IT_LIGHTNING;
 		}
 		self.items = self.items - (self.items & (IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3)) + IT_ARMOR3;
@@ -1260,6 +1260,7 @@ void ClientDisconnect ()
 	bprint (PRINT_HIGH, self.netname, " left the game with ", s, " frags\n");
 	sound (self, CHAN_BODY, "player/tornoff2.wav", 1, ATTN_NONE);
 	set_suicide_frame ();
+	self.health = 0; // So isDead() will work properly.
 
 	self.classname = "";	// don't turn up in find()
 }

@@ -268,6 +268,9 @@ void SightSound ()
 
 void FoundTarget ()
 {
+	// New enemy found, do not try to search for quite some time so monster does not change enemy from one player to another.
+	self.search_time = time + 10 + random() * 5;
+
 	if (self.enemy.classname == "player")
 	{	// let other monsters see this monster for a while
 		sight_entity = self;
@@ -299,8 +302,7 @@ slower noticing monsters.
 */
 float FindTarget ()
 {
-	entity	client;
-	float	r;
+	entity	client = __NULL__;
 
 // if the first spawnflag bit is set, the monster will only wake up on
 // really seeing the player, not another monster getting angry
@@ -308,59 +310,47 @@ float FindTarget ()
 // spawnflags & 3 is a big hack, because zombie crucified used the first
 // spawn flag prior to the ambush flag, and I forgot about it, so the second
 // spawn flag works as well
-	if (sight_entity_time >= time - 0.1 && !(self.spawnflags & 3) )
+	if (sight_entity_time >= time - 0.1 && !(self.spawnflags & 3)
+		&& sight_entity && sight_entity.enemy && sight_entity.enemy.classname == "player"
+		&& !isInvalidEnemy(sight_entity.enemy))
 	{
 		client = sight_entity;
 		if (client.enemy == self.enemy)
 			return false;
+	} else {
+		client = qp_checkclient();
 	}
-	else
-	{
-		client = checkclient ();
-		if (!client)
-			return false;	// current check entity isn't in PVS
-	}
+	if (!client)
+		return false;
 
 	if (client == self.enemy)
 		return false;
 
-	if (client.flags & FL_NOTARGET)
-		return false;
-	if (client.items & IT_INVISIBILITY)
-		return false;
-
-	r = range (client);
-	if (r == RANGE_FAR)
-		return false;
-
-	if (!visible (client))
-		return false;
-
-	if (r == RANGE_NEAR)
-	{
-		if (client.show_hostile < time && !infront (client))
+	// Do not use visibility/range/etc checks in QP mode.
+	if (!isQP()) {
+		float r = range(client);
+		if (r == RANGE_FAR)
 			return false;
-	}
-	else if (r == RANGE_MID)
-	{
-		if ( /* client.show_hostile < time || */ !infront (client))
+		if (!visible(client))
 			return false;
+		if (r == RANGE_NEAR) {
+			if (client.show_hostile < time && !infront(client))
+				return false;
+		} else if (r == RANGE_MID) {
+			if ( /* client.show_hostile < time || */ !infront(client))
+				return false;
+		}
 	}
 
+	// Check if client is `sight_entity` and a monster, use monster enemy as client.
+	if (client.classname != "player")
+		client = client.enemy;
+	if (client.classname != "player" || isInvalidEnemy(client))
+		return false;
 //
 // got one
 //
 	self.enemy = client;
-	if (self.enemy.classname != "player" || self.enemy.flags & FL_NOTARGET)
-	{
-		self.enemy = self.enemy.enemy;
-		if (self.enemy.classname != "player" || self.enemy.flags & FL_NOTARGET)
-		{
-			self.enemy = world;
-			return false;
-		}
-	}
-
 	FoundTarget ();
 
 	return true;
@@ -378,14 +368,15 @@ T_Damage calls this when a monster is hurt
 */
 void GetMadAtAttacker (entity attacker)
 {
+	if (isQP() && attacker.classname != "player")
+		return;
+
 // get mad unless of the same class (except for soldiers)
 	if (self != attacker && attacker != self.enemy)
 	{
 		if ( (self.classname != attacker.classname)
 		|| (self.classname == "monster_army" ) )
 		{
-			if (self.enemy.classname == "player")
-				self.oldenemy = self.enemy;
 			self.enemy = attacker;
 			FoundTarget ();
 		}
@@ -681,40 +672,37 @@ The monster has an enemy it is trying to kill
 void ai_run (float dist)
 {
 	movedist = dist;
+
+// set default knowledge of enemy
+	enemy_vis = false;
+	enemy_infront = false;
+	enemy_range = RANGE_FAR;
+	enemy_yaw = 0;
+
 // see if the enemy is dead
-	if (self.enemy.health <= 0 || self.enemy.flags & FL_NOTARGET)
+	if (isInvalidEnemy(self.enemy))
 	{
 		self.enemy = world;
-	// FIXME: look all around for other targets
-		if (self.oldenemy.health > 0 && !(self.oldenemy.flags & FL_NOTARGET))
-		{
-			self.enemy = self.oldenemy;
-			HuntTarget ();
-		}
+		self.search_time = 0;
+
+		if (self.movetarget)
+			self.th_walk ();
 		else
-		{
-			if (self.movetarget)
-				self.th_walk ();
-			else
-				self.th_stand ();
-			return;
-		}
+			self.th_stand ();
+		return;
 	}
 
 	self.show_hostile = time + 1;		// wake up other monsters
 
-// check knowledge of enemy
-	enemy_vis = visible(self.enemy);
-	if (enemy_vis)
-		self.search_time = time + 5;
-
 // look for other coop players
 	if (coop && self.search_time < time)
 	{
-		if (FindTarget ())
+		if (FindTarget())
 			return;
 	}
 
+// set actual knowledge of enemy
+	enemy_vis = visible(self.enemy);
 	enemy_infront = infront(self.enemy);
 	enemy_range = range(self.enemy);
 	enemy_yaw = vectoyaw(self.enemy.origin - self.origin);

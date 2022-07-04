@@ -13,8 +13,6 @@ float	movedist;
 .void() 	th_melee;
 .float() 	th_checkAttack;
 
-.entity 	oldenemy;		// mad at this player before taking damage
-
 .float	lefty;
 
 .float	search_time;
@@ -34,3 +32,16 @@ const float	AS_MISSILE		= 4;
 // sounds
 //
 .float		waitmin;
+
+//
+// forward declarations
+//
+
+// QP mode.
+bool isQP();
+void qp_think(void);
+// Find best enemy for monster.
+entity qp_checkclient(void);
+bool remove_monster_if_location_occupied(void);
+// Init body fading in qp mode.
+void monster_init_fade(entity e);
