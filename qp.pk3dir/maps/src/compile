@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#
+# This script compiles map to bsp.
+#
+
+MAP_BASE_NAME=$(basename $1 .map)
+OUTPUT_DIR="out"
+
+rm -rf "${OUTPUT_DIR}"
+mkdir "${OUTPUT_DIR}"
+cp $1 "${OUTPUT_DIR}"
+cd "${OUTPUT_DIR}"
+
+qbsp -wadpath .. -bsp2 -wrbrushes -subdivide 4080 ${MAP_BASE_NAME}.map ${MAP_BASE_NAME}.bsp
+vis -threads 7 ${MAP_BASE_NAME}.bsp
+light -threads 7 -surflight_subdivide 2048 ${MAP_BASE_NAME}.bsp
+
+cd -

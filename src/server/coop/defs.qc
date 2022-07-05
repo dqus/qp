@@ -39,6 +39,7 @@ const float	AS_MISSILE		= 4;
 
 // QP mode.
 bool isQP();
+void qp_worldspawn();
 void qp_think(void);
 // Find best enemy for monster.
 entity qp_checkclient(void);

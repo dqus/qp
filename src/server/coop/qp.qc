@@ -220,6 +220,27 @@ void info_monster_start(void)
 	total_spots++;
 }
 
+static entity find_monster_spawn_spot()
+{
+	static entity mon_spawn;
+	// Spawn spots defined by the map itself.
+	if (total_spots > 0) {
+		// Find random spawn point.
+		return find_idx(classname, "info_monster_start", i_rnd(0, total_spots - 1));
+	}
+	// Use mins/maxs of the world entity to guess spawn points.
+	if (!mon_spawn) {
+		mon_spawn = spawn(); // It executed once, mon_spawn has static keyword.
+		mon_spawn.classname = "mon_spawn";
+	}
+	// Selecte random location but try to select something not in the wall/floor.
+	float x = i_rnd(world.mins_x + 100, world.maxs_x - 100);
+	float y = i_rnd(world.mins_y + 100, world.maxs_y - 100);
+	float z = min(world.maxs_z - 100, world.mins_z + 1000);
+	mon_spawn.origin = [x, y, z];
+	return mon_spawn;
+}
+
 // Remove monsters if match is not in progress.
 static void remove_monsters(void)
 {
@@ -253,14 +274,11 @@ static entity spawn_one_monster_do(monster_t mon, entity spot)
 
 static entity spawn_one_monster(void)
 {
-	int idx = 0;
 	// Find random spawn point.
-	entity spot = find_idx(classname, "info_monster_start", i_rnd(0, total_spots - 1));
+	entity spot = find_monster_spawn_spot();
 	// Can't find.
 	if (!spot)
-	{
 		return __NULL__;
-	}
 	// Randomly select monster.
 	monster_t mon = monsters[i_rnd(0, monsters.length - 1)];
 	// Spawn monster.
@@ -296,6 +314,15 @@ static void spawn_monsters(void)
 		{
 			return;
 		}
+	}
+}
+
+void qp_worldspawn()
+{
+	// Check if map geometry (simple box) let us calculate spawn points for monsters instead of using entities for spawns.
+	if (mapname == "bloodfest" || !strncasecmp("qp_", mapname, 3)) {
+		dPrintf("^2QP map\n");
+		total_spots = -1;
 	}
 }
 

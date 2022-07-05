@@ -246,6 +246,8 @@ void worldspawn ()
 	deathmatch = cvar("deathmatch");
 	skill = cvar("skill");
 	coop = cvar("coop");
+
+	qp_worldspawn();
 }
 
 void StartFrame ()
