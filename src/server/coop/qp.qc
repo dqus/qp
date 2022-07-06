@@ -217,6 +217,8 @@ void monster_init_fade(entity e)
 
 void info_monster_start(void)
 {
+	if (total_spots < 0)
+		return;
 	total_spots++;
 }
 
