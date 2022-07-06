@@ -1548,6 +1548,9 @@ Plays sound if needed
 */
 void SuperDamageSound ()
 {
+	if (isQP())
+		return;
+
 	if (self.super_damage_finished > time)
 	{
 		if (self.super_sound < time)
