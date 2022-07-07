@@ -501,6 +501,12 @@ float		coop;
 
 .float		suicide_time;	// can't suicide sooner than this
 
+.bool		is_fully_connected;
+
+// commands.qc
+.int		stuff_idx; // Index or command/map we going to stuff to the client.
+.void()		stuff_cb; // Stuffer callback.
+
 // Zoid Additions
 .float	    gravity;	    // Gravity Multiplier (0 to 1.0)
 
@@ -634,3 +640,14 @@ float CanDamage (entity targ, entity inflictor);
 
 // items.qc
 float T_Heal (entity e, float heal_amount, float ignore); // health function
+
+// commands.qc
+void commands_stuffer_do();
+
+// vote_map.qc
+// Returns -1 on failure, 0+ for the index it was found at.
+float map_pool_findidx(string map);
+string map_pool_readidx(float idx);
+float map_pool_count(void);
+void map_pool_init();
+string vote_map_cmd(__variant arg);

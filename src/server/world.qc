@@ -248,6 +248,7 @@ void worldspawn ()
 	coop = cvar("coop");
 
 	qp_worldspawn();
+	map_pool_init();
 }
 
 void StartFrame ()

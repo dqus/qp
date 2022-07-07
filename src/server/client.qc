@@ -946,6 +946,8 @@ void PlayerPreThink ()
 		BotPreThink ();
 #endif
 
+	commands_stuffer_do();
+
 	if (intermission_running)
 	{
 		IntermissionThink ();   // otherwise a button could be missed between
@@ -1231,6 +1233,8 @@ called when a player connects to a server
 */
 void ClientConnect ()
 {
+	self.is_fully_connected = true;
+
 #ifdef FRIKBOT
 	ClientConnected();
     // FIXME: make these stuffcmds use IMPULSE_ADDBOT constants

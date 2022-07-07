@@ -2,27 +2,6 @@
 	commands.qc
 
 	user commands
-
-	Copyright (C) 1996-1997  Id Software, Inc.
-
-	This program is free software; you can redistribute it and/or
-	modify it under the terms of the GNU General Public License
-	as published by the Free Software Foundation; either version 2
-	of the License, or (at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-	See the GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to:
-
-		Free Software Foundation, Inc.
-		59 Temple Place - Suite 330
-		Boston, MA  02111-1307, USA
-
 */
 
 #if 0
@@ -223,3 +202,170 @@ float GE_ClientCommand (string cmd, string args)
 }
 
 #endif
+
+typedef struct {
+	string name;
+	string desc;
+	string cb(__variant arg);
+	__variant arg;
+	int flags;
+} cmd_t;
+
+static string pos_show_cmd(__variant arg)
+{
+	cPrintf(self, PRINT_HIGH, "^1fixme\n");
+	return "";
+}
+
+static string pos_set_cmd(__variant arg)
+{
+	cPrintf(self, PRINT_HIGH, "^1fixme\n");
+	return "";
+}
+
+cmd_t commands[] =
+{
+	{
+		.name = "qp_pos_show",
+		.desc = "show position",
+		.cb = pos_show_cmd,
+		.arg = 0,
+		.flags = 0
+	},
+	{
+		.name = "qp_pos_set",
+		.desc = "set position",
+		.cb = pos_set_cmd,
+		.arg = 0,
+		.flags = 0
+	},
+	{
+		.name = "qp_votemap",
+		.desc = "vote map",
+		.cb = vote_map_cmd,
+		.arg = 0,
+		.flags = 0
+	},
+};
+
+static void maps_stuffer_cb()
+{
+	string name = map_pool_readidx(self.stuff_idx++);
+	if (name == "") {
+		self.stuff_idx = -1; // We done.
+		return;
+	}
+	string aliascmd = sprintf("alias %s_map cmd qp_votemap %s\n", name, name);
+	stuffcmd(self, aliascmd);
+}
+
+static void commands_stuffer_cb()
+{
+	// Set up maps stuffing if we done with commands.
+	if (self.stuff_idx >= commands.length) {
+		self.stuff_cb = maps_stuffer_cb;
+		self.stuff_idx = 0;
+		return;
+	}
+	cmd_t cmd = commands[self.stuff_idx++];
+	string aliascmd = sprintf("alias %s cmd %s\n", substring(cmd.name, 3, -1), cmd.name);
+	stuffcmd(self, aliascmd);
+}
+
+void commands_stuffer_do()
+{
+	// Set up command stuffer when client just connected.
+	if (!self.stuff_cb) {
+		self.stuff_cb = commands_stuffer_cb;
+		self.stuff_idx = 0;
+	}
+	// Check if we have to stuff something or we already done.
+	while (self.stuff_idx >= 0) {
+		if (!isbackbuffered(self))
+			self.stuff_cb();
+	}
+}
+
+static float handle_setinfo(string key, string value)
+{
+#if 0
+	if (key == "team")
+	{
+		self.userteam = value;
+		if (self.classname == "player" && (self.ready || serverstate == serverstate_countdown || serverstate == serverstate_playing))
+		{
+			if (self.teamname != self.userteam)
+				sprint(self, PRINT_HIGH, "Your team will be changed at the end of the match.\n");
+			return TRUE;
+		}
+		forceinfokey(self, "team", value);
+		self.teamname = infokey(self, "team");
+		return TRUE;
+	}
+	if (key == "name")
+	{
+		if (self.classname == "player" && (serverstate == serverstate_countdown || serverstate == serverstate_playing))
+		{
+			if (self.netname != value)
+				sprint(self, PRINT_HIGH, "You cannot change name while the game is in progress.\n");
+			return TRUE;
+		}
+	}
+#endif
+	return FALSE;
+}
+
+float handle_usercmd(float argc)
+{
+	if (argc < 1 || self.is_fully_connected == 0)
+		return 0;
+
+	string cmdname = argv(0);
+
+	if (cmdname == "setinfo")
+		return handle_setinfo(argv(1), argv(2));
+	else if (cmdname == "team" || cmdname == "name") { //for NQ users that lack userinfos clientside.
+		return handle_setinfo(cmdname, argv(1));
+	} else {
+		for (int i = 0; i < commands.length; i++) {
+			cmd_t cmd = commands[i];
+			if (cmd.name != cmdname)
+				continue;
+			string err = cmd.cb(0);
+			if (err != "")
+				cPrintf(self, PRINT_HIGH, "%s\n", err);
+			return 1;
+		}
+	}
+	return 0;
+};
+
+
+void SV_ParseClientCommand(string str)
+{
+	float numargs = tokenize(str);
+	if (numargs < 1)
+		return;
+
+	// When spectating you need to use say_game to talk to everyone during a game
+	if (serverstate == SS_PLAYING && self.classname != "player" && argv(0) == "say")
+	{
+		if (substring(argv(1), 0, 8) != "say_game") {
+			str = substring(str, 3, strlen(str));
+			str = strcat("say_team", str);
+		} else if (substring(argv(1), 0, 8) == "say_game") {
+			if (substring(str, 4, 1) == "\"") {
+				// ezquake
+				str = substring(str, 14, strlen(str) - 15);
+			} else {
+				// fodquake
+				str = substring(str, 13, strlen(str));
+			}
+
+			str = strcat("say ", str);
+		}
+	}
+
+	if (handle_usercmd(numargs) == 0)
+		clientcommand(self, str);
+};

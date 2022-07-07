@@ -29,6 +29,7 @@ buttons.qc
 triggers.qc
 plats.qc
 misc.qc
+vote_map.qc
 commands.qc
 
 coop/ai.qc

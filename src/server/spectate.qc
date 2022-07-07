@@ -43,6 +43,8 @@ called when a spectator connects to a server
 */
 void SpectatorConnect ()
 {
+	self.is_fully_connected = true;
+
 	bprint (PRINT_MEDIUM, "Spectator ", self.netname, " entered the game\n");
 
 	self.goalentity = world; // used for impulse 1 below
@@ -94,6 +96,8 @@ Called every frame after physics are run
 */
 void SpectatorThink ()
 {
+	commands_stuffer_do();
+
 	// self.origin, etc contains spectator position, so you could
 	// do some neat stuff here
 
