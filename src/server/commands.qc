@@ -288,30 +288,16 @@ void commands_stuffer_do()
 
 static float handle_setinfo(string key, string value)
 {
-#if 0
-	if (key == "team")
+	if (self.classname != "player")
+		return FALSE; // Let spectator do whatever he wants with setinfo, we does not care.
+
+	if (key == "team" || key == "name")
 	{
-		self.userteam = value;
-		if (self.classname == "player" && (self.ready || serverstate == serverstate_countdown || serverstate == serverstate_playing))
-		{
-			if (self.teamname != self.userteam)
-				sprint(self, PRINT_HIGH, "Your team will be changed at the end of the match.\n");
-			return TRUE;
-		}
-		forceinfokey(self, "team", value);
-		self.teamname = infokey(self, "team");
-		return TRUE;
-	}
-	if (key == "name")
-	{
-		if (self.classname == "player" && (serverstate == serverstate_countdown || serverstate == serverstate_playing))
-		{
-			if (self.netname != value)
-				sprint(self, PRINT_HIGH, "You cannot change name while the game is in progress.\n");
+		if (serverstate == SS_COUNTDOWN || serverstate == SS_PLAYING) {
+			cPrintf(self, PRINT_HIGH, "You cannot change %s while the game is in progress\n", key);
 			return TRUE;
 		}
 	}
-#endif
 	return FALSE;
 }
 

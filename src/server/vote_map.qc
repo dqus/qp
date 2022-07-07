@@ -79,7 +79,7 @@ string vote_map_cmd(__variant arg)
 		return "Invalid map name";
 	if not(whichpack(strcat("maps/", mapstr, ".bsp"), FALSE))
 		return "Server does not have that map";
-	bPrintf(PRINT_HIGH, "%s votes for map %s", self.netname, mapstr);
+	bPrintf(PRINT_HIGH, "%s votes for map %s\n", self.netname, mapstr);
 
 	changelevel(mapstr);
 	return "";
