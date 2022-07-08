@@ -135,7 +135,7 @@ bool isDead(entity e)
 
 bool isInvalidEnemy(entity e)
 {
-	return isDead(e) || (e.flags & FL_NOTARGET) || (e.items & IT_INVISIBILITY);
+	return isDead(e) || (e.flags & FL_NOTARGET) || (e.items & IT_RING);
 }
 
 float argvf(int n)

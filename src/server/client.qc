@@ -78,7 +78,7 @@ void SetChangeParms ()
 
 // remove items
 	self.items = self.items - (self.items &
-	(IT_KEY1 | IT_KEY2 | IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD) );
+	(IT_KEY1 | IT_KEY2 | IT_RING | IT_PENT | IT_SUIT | IT_QUAD) );
 
 // cap super health
 	if (self.health > 100)
@@ -246,7 +246,7 @@ void execute_changelevel ()
 		other.movetype = MOVETYPE_NONE;
 		other.modelindex = 0;
 		other.effects = 0;
-		other.items = other.items - (other.items & (IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD));
+		other.items = other.items - (other.items & (IT_RING | IT_PENT | IT_SUIT | IT_QUAD));
 		other.super_damage_finished = 0;
 		other.radsuit_finished = 0;
 		other.invisible_finished = 0;
@@ -614,7 +614,7 @@ void PutClientInServer ()
 		self.armorvalue = 200;
 		self.armortype = 0.8;
 		self.health = 250;
-		self.items = self.items | IT_INVULNERABILITY;
+		self.items = self.items | IT_PENT;
 		self.invincible_time = 1;
 		self.invincible_finished = time + 3;
 	}
@@ -635,7 +635,7 @@ void PutClientInServer ()
 		self.armorvalue = 200;
 		self.armortype = 0.8;
 		self.health = 200;
-		self.items = self.items | IT_INVULNERABILITY;
+		self.items = self.items | IT_PENT;
 		self.invincible_time = 1;
 		self.invincible_finished = time + 3;
 	}
@@ -1030,7 +1030,7 @@ void CheckPowerups ()
 
 		if (self.invisible_finished < time)
 		{       // just stopped
-			self.items = self.items - IT_INVISIBILITY;
+			self.items = self.items - IT_RING;
 			self.invisible_finished = 0;
 			self.invisible_time = 0;
 			W_SetCurrentAmmo();		// set the correct .vw_index
@@ -1069,7 +1069,7 @@ void CheckPowerups ()
 
 		if (self.invincible_finished < time)
 		{       // just stopped
-			self.items = self.items - IT_INVULNERABILITY;
+			self.items = self.items - IT_PENT;
 			self.invincible_time = 0;
 			self.invincible_finished = 0;
 		}

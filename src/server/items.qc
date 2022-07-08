@@ -131,7 +131,7 @@ void r_touch ()
 	sound (other, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");
 	self.solid = SOLID_NOT;
-	other.items = other.items | IT_INVISIBILITY;
+	other.items = other.items | IT_RING;
 	self.model = "";
 
 // do the apropriate action
@@ -1374,7 +1374,7 @@ void item_artifact_invulnerability ()
 	self.netname = "Pentagram of Protection";
 	if (deathmatch)
 		self.effects = self.effects | EF_RED;
-	self.items = IT_INVULNERABILITY;
+	self.items = IT_PENT;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	StartItem ();
 }
@@ -1412,7 +1412,7 @@ void item_artifact_invisibility ()
 	self.noise = "items/inv1.wav";
 	setmodel (self, "progs/invisibl.mdl");
 	self.netname = "Ring of Shadows";
-	self.items = IT_INVISIBILITY;
+	self.items = IT_RING;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	StartItem ();
 }
@@ -1495,7 +1495,7 @@ void BackpackTouch ()
 			{
 				other.invincible_time = 1;
 				other.invincible_finished = time + 30;
-				other.items = other.items | IT_INVULNERABILITY;
+				other.items = other.items | IT_PENT;
 
 				other.super_time = 1;
 				other.super_damage_finished = time + 30;

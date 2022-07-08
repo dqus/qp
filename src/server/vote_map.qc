@@ -71,13 +71,13 @@ void map_pool_init()
 	}
 }
 
-string vote_map_cmd(__variant arg)
+string vote_map_cmd(__variant arg, int argc)
 {
 	string mapstr = argv(1);
 
 	if (mapstr == "" || !strncasecmp(mapstr, "b_", 2))
 		return "Invalid map name";
-	if not(whichpack(strcat("maps/", mapstr, ".bsp"), FALSE))
+	if not(whichpack(strcat("maps/", mapstr, ".bsp"), false))
 		return "Server does not have that map";
 	bPrintf(PRINT_HIGH, "%s votes for map %s\n", self.netname, mapstr);
 

@@ -333,10 +333,10 @@ const float IT_SUPERHEALTH			= 0x010000;
 const float IT_KEY1 				= 0x020000;
 const float IT_KEY2 				= 0x040000;
 
-const float IT_INVISIBILITY 		= 0x080000;
-const float IT_INVULNERABILITY		= 0x100000;
-const float IT_SUIT 				= 0x200000;
-const float IT_QUAD 				= 0x400000;
+const float IT_RING					= 0x080000;
+const float IT_PENT					= 0x100000;
+const float IT_SUIT					= 0x200000;
+const float IT_QUAD					= 0x400000;
 
 
 // point content values
@@ -650,4 +650,4 @@ float map_pool_findidx(string map);
 string map_pool_readidx(float idx);
 float map_pool_count(void);
 void map_pool_init();
-string vote_map_cmd(__variant arg);
+string vote_map_cmd(__variant arg, int argc);

@@ -578,7 +578,7 @@ void PlayerDie ()
 {
 	float	i;
 	string	s, s2;
-	self.items = self.items - (self.items & IT_INVISIBILITY);
+	self.items = self.items - (self.items & IT_RING);
 
 	if ((stof(infokey(world,"dq"))) != 0)
 	{

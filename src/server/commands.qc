@@ -4,26 +4,48 @@
 	user commands
 */
 
-#if 0
+typedef enum {
+	CMD_PASS_TO_ENGINE = 0, // Mod did not recognize user command and SHOULD pass it to the engine.
+	CMD_HANDLED = 1, // Mod handled command and should NOT pass command to the engine.
+} cmdHandled_t;
 
-void Cmd_Give ()
+typedef struct {
+	string name;
+	string desc;
+	string cb(__variant arg, int argc);
+	__variant arg;
+	int flags;
+} cmd_t;
+
+static bool CheatsAllowed()
+{
+	return cvar("sv_cheats");
+}
+
+static string CheatsAllowedStr()
+{
+	if (CheatsAllowed())
+		return "";
+	return "Cheats are not allowed on this server";
+}
+
+static string give_cmd(__variant arg, int argc)
 {
 	string item;
-	float	am;
+	float	am = 100;
 
-	if (!infokey(world, "*cheats")) {
-		sprint (self, PRINT_HIGH, "Cheats are not allowed on this server\n");
-		return;
-	}
+	string err = CheatsAllowedStr();
+	if (err != "")
+		return err;
 
-	if (argc() < 2)
-		return;
+	if (argc < 2)
+		return "invalid arguments";
 
 	item = argv(1);
-	if (argc() >= 3)
-		am = stof(argv(2));
-	else
-		am = 100;
+	if (argc >= 3)
+		am = argvf(2);
+
+	am = max(0, am); // Do not allow negative values.
 
 	if (item == "2")
 		self.items = self.items | IT_SHOTGUN;
@@ -48,7 +70,7 @@ void Cmd_Give ()
 	else if (item == "c" || item == "cells")
 		self.ammo_cells = am;
 	else if (item == "h" || item == "health") {
-		self.health = am;
+		self.health = max(1, am); // Do not allow zero health.
 	}
 	else if (item == "ga") {
 		self.items = self.items - (self.items & (IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3));
@@ -61,7 +83,7 @@ void Cmd_Give ()
 			self.armorvalue = 0;
 	}
 	else if (item == "ya") {
-		if (argc() < 3)
+		if (argc < 3)
 			am = 150;
 		self.items = self.items - (self.items & (IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3));
 		if (am > 0) {
@@ -73,7 +95,7 @@ void Cmd_Give ()
 			self.armorvalue = 0;
 	}
 	else if (item == "ra") {
-		if (argc() < 3)
+		if (argc < 3)
 			am = 200;
 		self.items = self.items - (self.items & (IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3));
 		if (am > 0) {
@@ -86,8 +108,23 @@ void Cmd_Give ()
 	}
 	else if (item == "quad") {
 		self.items = self.items | IT_QUAD;
-		self.super_time = 0;
-		self.super_damage_finished = time + 30;
+		self.super_time = 1;
+		self.super_damage_finished = time + am;
+	}
+	else if (item == "pent") {
+		self.items = self.items | IT_PENT;
+		self.invincible_time = 1;
+		self.invincible_finished = time + am;
+	}
+	else if (item == "suit") {
+		self.items = self.items | IT_SUIT;
+		self.rad_time = 1;
+		self.radsuit_finished = time + am;
+	}
+	else if (item == "ring") {
+		self.items = self.items | IT_RING;
+		self.invisible_time = 1;
+		self.invisible_finished = time + am;
 	}
 	else if (item == "key1")
 		self.items = self.items | IT_KEY1;
@@ -108,118 +145,29 @@ void Cmd_Give ()
 		self.armorvalue = 200;
 	}
 	else {
-		sprint (self, PRINT_HIGH, "no such item: ", item, "\n");
+		return strcat("no such item: ", item);
 	}
-}
-
-
-void Cmd_God ()
-{
-	if (infokey(world, "*cheats") == "") {
-		sprint (self, PRINT_HIGH, "Cheats are not allowed on this server\n");
-		return;
-	}
-
-	if (self.flags & FL_GODMODE)
-	{
-		self.flags = self.flags - FL_GODMODE;
-		sprint (self, PRINT_HIGH, "godmode OFF\n");
-	}
-	else
-	{
-		self.flags = self.flags | FL_GODMODE;
-		sprint (self, PRINT_HIGH, "godmode ON\n");
-	}
-}
-
-#ifdef ZQUAKE_STUFF
-void Cmd_Observe ()
-{
-	entity spot;
-
-	if (infokey(self, "*spectator") != "")
-		return;
-
-	if (!deathmatch && !coop) {
-		sprint (self, PRINT_HIGH, "This command is disabled in single player mode\n");
-		return;
-	}
-
-	ClientDisconnect ();
-
-	setinfo(self, "*spectator", "1");
-	self.movetype = MOVETYPE_NOCLIP;
-	self.view_ofs = '0 0 22';
-	self.fixangle = true;
-	spot = find (world, classname, "info_player_start");
-	self.origin = spot.origin;
-	self.angles = spot.angles;
-
-	SpectatorConnect ();
-}
-
-void Cmd_Join ()
-{
-	if (infokey(self, "*spectator") == "")
-		return;
-
-	if (!deathmatch && !coop) {
-		sprint (self, PRINT_HIGH, "This command is disabled in single player mode\n");
-		return;
-	}
-
-	SpectatorDisconnect ();
-	setinfo(self, "*spectator", "");
-	ClientConnect ();
-	PutClientInServer ();
-}
-#endif
-
-
-/*
-** ZQ_CLIENTCOMMAND extension
-*/
-float GE_ClientCommand (string cmd, string args)
-{
-	if (cmd == "give")
-		Cmd_Give ();
-	else if (cmd == "god")
-		Cmd_God ();
-#ifdef ZQUAKE_STUFF
-	else if (cmd == "join")
-		Cmd_Join ();
-	else if (cmd == "observe")
-		Cmd_Observe ();
-#endif
-#ifdef FRIKBOT
-	else if (BotClientCommand(cmd, args))
-		return true;
-#endif
-	else
-		return false;
-
-	return true;
-}
-
-#endif
-
-typedef struct {
-	string name;
-	string desc;
-	string cb(__variant arg);
-	__variant arg;
-	int flags;
-} cmd_t;
-
-static string pos_show_cmd(__variant arg)
-{
-	cPrintf(self, PRINT_HIGH, "^1fixme\n");
 	return "";
 }
 
-static string pos_set_cmd(__variant arg)
+static string pos_show_cmd(__variant arg, int argc)
 {
-	cPrintf(self, PRINT_HIGH, "^1fixme\n");
+	string err = CheatsAllowedStr();
+	if (err != "")
+		return err;
+
+	cPrintf(self, PRINT_HIGH, "position: %v\n", self.origin);
+	return "";
+}
+
+static string pos_set_cmd(__variant arg, int argc)
+{
+	string err = CheatsAllowedStr();
+	if (err != "")
+		return err;
+
+	vector org = [argvf(1), argvf(2), argvf(3)];
+	setorigin(self, org); // Unsafe, could stuck in a wall and such, but it is intentionall.
 	return "";
 }
 
@@ -243,6 +191,13 @@ cmd_t commands[] =
 		.name = "qp_votemap",
 		.desc = "vote map",
 		.cb = vote_map_cmd,
+		.arg = 0,
+		.flags = 0
+	},
+	{
+		.name = "qp_giveme",
+		.desc = "give cheat",
+		.cb = give_cmd,
 		.arg = 0,
 		.flags = 0
 	},
@@ -286,25 +241,24 @@ void commands_stuffer_do()
 	}
 }
 
-static float handle_setinfo(string key, string value)
+static cmdHandled_t handle_setinfo(string key, string value)
 {
 	if (self.classname != "player")
-		return FALSE; // Let spectator do whatever he wants with setinfo, we does not care.
+		return CMD_PASS_TO_ENGINE; // Let spectator do whatever he wants with setinfo, we does not care.
 
-	if (key == "team" || key == "name")
-	{
+	if (key == "team" || key == "name") {
 		if (serverstate == SS_COUNTDOWN || serverstate == SS_PLAYING) {
 			cPrintf(self, PRINT_HIGH, "You cannot change %s while the game is in progress\n", key);
-			return TRUE;
+			return CMD_HANDLED; // Does not pass command to the engine, so team/name stay the same.
 		}
 	}
-	return FALSE;
+	return CMD_PASS_TO_ENGINE;
 }
 
-float handle_usercmd(float argc)
+cmdHandled_t handle_usercmd(int argc)
 {
 	if (argc < 1 || self.is_fully_connected == 0)
-		return 0;
+		return CMD_PASS_TO_ENGINE;
 
 	string cmdname = argv(0);
 
@@ -317,20 +271,19 @@ float handle_usercmd(float argc)
 			cmd_t cmd = commands[i];
 			if (cmd.name != cmdname)
 				continue;
-			string err = cmd.cb(0);
+			string err = cmd.cb(0, argc);
 			if (err != "")
 				cPrintf(self, PRINT_HIGH, "%s\n", err);
-			return 1;
+			return CMD_HANDLED; // Does not pass command to the engine, we handled it ourself.
 		}
 	}
-	return 0;
-};
-
+	return CMD_PASS_TO_ENGINE;
+}
 
 void SV_ParseClientCommand(string str)
 {
-	float numargs = tokenize(str);
-	if (numargs < 1)
+	int argc = tokenize(str);
+	if (argc < 1)
 		return;
 
 	// When spectating you need to use say_game to talk to everyone during a game
@@ -352,6 +305,6 @@ void SV_ParseClientCommand(string str)
 		}
 	}
 
-	if (handle_usercmd(numargs) == 0)
+	if (handle_usercmd(argc) == CMD_PASS_TO_ENGINE)
 		clientcommand(self, str);
-};
+}
