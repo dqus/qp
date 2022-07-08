@@ -238,7 +238,7 @@ static entity find_monster_spawn_spot()
 	// Selecte random location but try to select something not in the wall/floor.
 	float x = i_rnd(world.mins_x + 100, world.maxs_x - 100);
 	float y = i_rnd(world.mins_y + 100, world.maxs_y - 100);
-	float z = min(world.maxs_z - 100, world.mins_z + 1000);
+	float z = min(world.maxs_z - 100, world.mins_z + 1500);
 	mon_spawn.origin = [x, y, z];
 	return mon_spawn;
 }
@@ -322,7 +322,7 @@ static void spawn_monsters(void)
 void qp_worldspawn()
 {
 	// Check if map geometry (simple box) let us calculate spawn points for monsters instead of using entities for spawns.
-	if (mapname == "bloodfest" || !strncasecmp("qp_", mapname, 3)) {
+	if (!strncasecmp("qp_", mapname, 3)) {
 		dPrintf("^2QP map\n");
 		total_spots = -1;
 	}
