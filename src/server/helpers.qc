@@ -142,3 +142,14 @@ float argvf(int n)
 {
 	return stof(argv(n));
 }
+
+// Walk all entities and set newOwner if e.owner == oldOwner.
+void resetOwner(entity oldOwner, entity newOwner)
+{
+	for (entity e = world; (e = nextent(e));) {
+		if (e.owner == oldOwner) {
+//			bPrintf(PRINT_HIGH, "set new owner for:%s\n", e.classname);
+			e.owner = newOwner;
+		}
+	}
+}

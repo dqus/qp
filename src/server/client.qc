@@ -529,6 +529,7 @@ void PutClientInServer ()
 {
 	entity	spot;
 
+	self.spawn_time = time;
 	self.classname = "player";
 	self.health = 100;
 	self.takedamage = DAMAGE_AIM;

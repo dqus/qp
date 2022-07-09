@@ -105,7 +105,7 @@ void() shal_death6      =[      $death6,        shal_death7     ] {}
 void() shal_death7      =[      $death7,        shal_death7    ] {monster_init_fade(self);}
 
 
-void shalrath_pain (entity attacker, float damage)
+void shalrath_pain(entity attacker, float damage)
 {
 	if (self.pain_finished > time)
 		return;
@@ -115,8 +115,11 @@ void shalrath_pain (entity attacker, float damage)
 	self.pain_finished = time + 3;
 }
 
-void shalrath_die ()
+void shalrath_die()
 {
+	// Reset owner on missiles so they does not get wrong one on entity reuse.
+	resetOwner(self, __NULL__);
+
 // check for gib
 	if (self.health < -90)
 	{
@@ -131,7 +134,6 @@ void shalrath_die ()
 	sound (self, CHAN_VOICE, "shalrath/death.wav", 1, ATTN_NORM);
 	shal_death1();
 	self.solid = SOLID_NOT;
-	// insert death sounds here
 }
 
 /*
@@ -139,67 +141,61 @@ void shalrath_die ()
 ShalMissile
 ================
 */
-void ShalMissileTouch ();
-void ShalHome ();
-void ShalMissile ()
-{
-	entity	missile;
-	vector	dir;
-	float	dist, flytime;
+void ShalMissileTouch();
+void ShalMissileDie();
+void ShalHome();
 
-	dir = normalize((self.enemy.origin + '0 0 10') - self.origin);
-	dist = vlen (self.enemy.origin - self.origin);
-	flytime = dist * 0.002;
-	if (flytime < 0.1)
-		flytime = 0.1;
+void ShalMissile()
+{
+	if (isInvalidEnemy(self.enemy))	{
+		return;
+	}
+
+	vector dir = normalize(self.enemy.origin + '0 0 10' - self.origin);
+	float dist = vlen(self.enemy.origin - self.origin);
+	float flytime = bound(0.1, dist * 0.002, 5);
 
 	muzzleflash();
 	sound (self, CHAN_WEAPON, "shalrath/attack2.wav", 1, ATTN_NORM);
 
-	missile = spawn ();
+	entity missile = spawn ();
+	missile.classname = "shal_missile";
 	missile.owner = self;
-
 	missile.solid = SOLID_BBOX;
 	missile.movetype = MOVETYPE_FLYMISSILE;
-	setmodel (missile, "progs/v_spike.mdl");
-
-	setsize (missile, VEC_ORIGIN, VEC_ORIGIN);
-
-	missile.origin = self.origin + '0 0 10';
+	setmodel(missile, "progs/v_spike.mdl");
+	float missile_sz = 5;
+	setsize(missile, [-missile_sz, -missile_sz, -missile_sz], [missile_sz, missile_sz, missile_sz]);
+	setorigin(missile, self.origin + '0 0 10');
 	missile.velocity = dir * 400;
 	missile.avelocity = '300 300 300';
 	missile.nextthink = flytime + time;
 	missile.think = ShalHome;
 	missile.enemy = self.enemy;
 	missile.touch = ShalMissileTouch;
+	missile.health = 40;
+	missile.takedamage = DAMAGE_AIM;
+	missile.th_die = ShalMissileDie;
 }
 
-void ShalHome ()
+void ShalHome()
 {
-	vector	dir, vtemp;
-	vtemp = self.enemy.origin + '0 0 10';
-	if (self.enemy.health < 1)
-	{
-		remove(self);
+	// Remove missile if flyng for too long or enemy is invalid.
+	if (isInvalidEnemy(self.enemy) || self.spawn_time + (isQP() ? 10 : 20) < time)	{
+		ShalMissileDie();
 		return;
 	}
-	dir = normalize(vtemp - self.origin);
-	if (skill == 3)
-		self.velocity = dir * 350;
-	else
-		self.velocity = dir * 250;
+	vector dir = normalize(self.enemy.origin + '0 0 10' - self.origin);
+	self.velocity = dir * (skill == 3 ? 400 : 250);
 	self.nextthink = time + 0.2;
 	self.think = ShalHome;
 }
 
-void ShalMissileTouch ()
+void ShalMissileTouch()
 {
-	if (other == self.owner)
-		return;		// don't explode on owner
-
 	if (other.classname == "monster_zombie")
 		T_Damage (other, self, self, 110);
-	T_RadiusDamage (self, self.owner, 40, world, "shalrath");
+	T_RadiusDamage (self, self.owner, 40, self, "shalrath");
 	sound (self, CHAN_WEAPON, "weapons/r_exp3.wav", 1, ATTN_NORM);
 
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
@@ -212,11 +208,19 @@ void ShalMissileTouch ()
 	remove (self);
 }
 
+void ShalMissileDie()
+{
+	entity old_other = other;
+	other = world;
+	ShalMissileTouch();
+	other = old_other;
+}
+
 //=================================================================
 
 /*QUAKED monster_shalrath (1 0 0) (-32 -32 -24) (32 32 48) Ambush
 */
-void monster_shalrath ()
+void monster_shalrath()
 {
 	if (deathmatch)
 	{

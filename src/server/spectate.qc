@@ -44,6 +44,7 @@ called when a spectator connects to a server
 void SpectatorConnect ()
 {
 	self.is_fully_connected = true;
+	self.spawn_time = time;
 
 	bprint (PRINT_MEDIUM, "Spectator ", self.netname, " entered the game\n");
 
