@@ -820,16 +820,14 @@ void ai_melee_side ()
 }
 
 /*
-
-in nightmare mode, all attack_finished times become 0
-some monsters refire twice automatically
-
+In nightmare mode, all attack_finished times become time + 0 so they attack faster, on the other hand we still have chance to check if
+there was attack recently.
+Some monsters refire twice automatically.
 */
 void SUB_AttackFinished (float normal)
 {
 	self.cnt = 0;		// refire count for nightmare
-	if (skill != 3)
-		self.attack_finished = time + normal;
+	self.attack_finished = time + (skill == 3 ? 0 : normal);
 }
 
 void SUB_CheckRefire (void() thinkst)

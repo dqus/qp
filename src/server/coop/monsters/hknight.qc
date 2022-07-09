@@ -103,7 +103,7 @@ void CheckForCharge ()
 	// check for mad charge
 	if (!enemy_vis)
 		return;
-	if (time < self.attack_finished)
+	if (time <= self.attack_finished)
 		return;
 	if ( fabs(self.origin_z - self.enemy.origin_z) > 20)
 		return;		// too much height change
@@ -169,9 +169,12 @@ void()	hknight_walk20	=[	$walk20,	hknight_walk1	] {ai_walk(2);}
 
 //===========================================================================
 
-void()	hknight_run1	=[	$run1,		hknight_run2	] {
-hk_idle_sound();
-ai_run (20); CheckForCharge (); }
+void()	hknight_run1	=[	$run1,		hknight_run2	]
+{
+	hk_idle_sound();
+	ai_run (20);
+	CheckForCharge ();
+}
 void()	hknight_run2	=[	$run2,		hknight_run3	] {ai_run(25);}
 void()	hknight_run3	=[	$run3,		hknight_run4	] {ai_run(18);}
 void()	hknight_run4	=[	$run4,		hknight_run5	] {ai_run(16);}
@@ -394,21 +397,13 @@ void hknight_pain (entity attacker, float damage)
 	hknight_pain1 ();
 }
 
-float	hknight_type;
-
 void hknight_melee ()
 {
-	hknight_type = hknight_type + 1;
-
 	sound (self, CHAN_WEAPON, "hknight/slash1.wav", 1, ATTN_NORM);
-	if (hknight_type == 1)
-		hknight_slice1 ();
-	else if (hknight_type == 2)
-		hknight_smash1 ();
-	else if (hknight_type == 3)
-	{
-		hknight_watk1 ();
-		hknight_type = 0;
+	switch (i_rnd(0, 2)) {
+	case 0: hknight_slice1 (); break;
+	case 1: hknight_smash1 (); break;
+	default: hknight_watk1 (); break;
 	}
 }
 
