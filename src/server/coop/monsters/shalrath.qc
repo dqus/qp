@@ -186,7 +186,7 @@ void ShalHome()
 		return;
 	}
 	vector dir = normalize(self.enemy.origin + '0 0 10' - self.origin);
-	self.velocity = dir * (skill == 3 ? 400 : 250);
+	self.velocity = dir * ((skill == 3 || isQP()) ? 400 : 250);
 	self.nextthink = time + 0.2;
 	self.think = ShalHome;
 }
