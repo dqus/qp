@@ -524,48 +524,10 @@ LightningDamage
 */
 void LightningDamage (vector p1, vector p2, entity from, float damage)
 {
-	entity	e1, e2;
-	vector	f;
-
-	f = p2 - p1;
-	normalize (f);
-	f_x = 0 - f_y;
-	f_y = f_x;
-	f_z = 0;
-	f = f*16;
-
-	e1 = e2 = world;
-
-	traceline (p1, p2, false, self);
-
+	traceline(p1, p2, false, self);
 	if (trace_ent.takedamage)
-	{
-		e1 = trace_ent;
-		LightningHit (from, damage);
-
-		if (self.classname == "player")
-		{
-			// check DM6 platform bug-o-feature
-			if (self.groundentity == e1)
-				if (e1.classname == "door")
-					e1.velocity_z = e1.velocity_z + 400;
-		}
-	}
-
-	traceline (p1 + f, p2 + f, false, self);
-	if (trace_ent != e1 && trace_ent.takedamage)
-	{
-		e2 = trace_ent;
-		LightningHit (from, damage);
-	}
-
-	traceline (p1 - f, p2 - f, false, self);
-	if (trace_ent != e1 && trace_ent != e2 && trace_ent.takedamage)
-	{
-		LightningHit (from, damage);
-	}
+		LightningHit(from, damage);
 }
-
 
 void W_FireLightning ()
 {
@@ -634,7 +596,7 @@ void W_FireLightning ()
 	WriteCoord (MSG_MULTICAST, trace_endpos_z);
 	multicast (org, MULTICAST_PHS);
 
-	LightningDamage (self.origin, trace_endpos + v_forward*4, self, 30);
+	LightningDamage (org, trace_endpos + v_forward*4, self, 30);
 }
 
 
