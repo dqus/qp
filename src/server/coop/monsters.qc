@@ -131,7 +131,7 @@ void walkmonster_start_go ()
 
 void walkmonster_start ()
 {
-	if (remove_monster_if_location_occupied())
+	if (removeMonsterIfLocationOccupied())
 		return;
 // delay drop to floor to make sure all doors have been spawned
 // spread think times so they don't all happen at same time
@@ -188,7 +188,7 @@ void flymonster_start_go ()
 
 void flymonster_start ()
 {
-	if (remove_monster_if_location_occupied())
+	if (removeMonsterIfLocationOccupied())
 		return;
 // set FL_FLY early so that we're not affected by gravity
 	self.flags = self.flags | (FL_FLY | FL_MONSTER);
@@ -239,7 +239,7 @@ void swimmonster_start_go ()
 
 void swimmonster_start ()
 {
-	if (remove_monster_if_location_occupied())
+	if (removeMonsterIfLocationOccupied())
 		return;
 // set FL_SWIM early so that we're not affected by gravity
 	self.flags = self.flags | (FL_SWIM | FL_MONSTER);

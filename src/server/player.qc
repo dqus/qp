@@ -522,14 +522,14 @@ void ThrowGib (string gibname, float dm)
 	new.frame = 0;
 	new.flags = 0;
 
-	monster_init_fade(new);
+	initEntityFade(new);
 }
 
 void ThrowHead (string gibname, float dm)
 {
 	setmodel (self, gibname);
 	self.frame = 0;
-	self.nextthink = -1;
+	self.nextthink = -1; // For monsters, players set this in PlayerDead().
 	self.movetype = MOVETYPE_BOUNCE;
 	self.takedamage = DAMAGE_NO;
 	self.solid = SOLID_NOT;
@@ -541,7 +541,7 @@ void ThrowHead (string gibname, float dm)
 	self.avelocity = crandom() * '0 600 0';
 
 	if (self.flags & FL_MONSTER)
-		monster_init_fade(self);
+		initEntityFade(self);
 }
 
 
@@ -549,12 +549,15 @@ void GibPlayer ()
 {
 	self.vw_index = 0;
 
+	if (self.deathtype == "connect_suicide") {
+		ThrowHead ("", self.health);
+		return; // Someone trying to connect while game in progress, avoid abusive gibs.
+	}
+
 	ThrowHead ("progs/h_player.mdl", self.health);
 	ThrowGib ("progs/gib1.mdl", self.health);
 	ThrowGib ("progs/gib2.mdl", self.health);
 	ThrowGib ("progs/gib3.mdl", self.health);
-
-	self.deadflag = DEAD_DEAD;
 
 	if (damage_attacker.classname == "teledeath")
 	{
@@ -624,7 +627,8 @@ void PlayerDie ()
 
 	if (self.health < -40 || self.deathtype == "squish")
 	{
-		GibPlayer ();
+		GibPlayer();
+		PlayerDead();
 		return;
 	}
 
@@ -656,18 +660,6 @@ void PlayerDie ()
 		player_diee1();
 
 }
-
-void set_suicide_frame ()
-{       // used by kill command and diconnect command
-	if (self.model != "progs/player.mdl")
-		return; // already gibbed
-	self.frame = $deatha11;
-	self.solid = SOLID_NOT;
-	self.movetype = MOVETYPE_TOSS;
-	self.deadflag = DEAD_DEAD;
-	self.nextthink = -1;
-}
-
 
 void()  player_diea1    =       [       $deatha1,       player_diea2    ] {}
 void()  player_diea2    =       [       $deatha2,       player_diea3    ] {}

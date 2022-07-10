@@ -65,14 +65,22 @@
 {
 "classname" "info_player_coop"
 "origin" "208 464 -440"
+"angle" "270"
 }
 // entity 2
 {
 "classname" "info_player_deathmatch"
 "origin" "208 400 -440"
+"angle" "270"
 }
 // entity 3
 {
 "classname" "info_player_start"
 "origin" "208 336 -440"
+"angle" "270"
+}
+// entity 4
+{
+"classname" "info_game_start"
+"origin" "192 224 -448"
 }

@@ -60,22 +60,138 @@
 ( 256 2048 2152 ) ( 260 2048 2152 ) ( 256 2048 2156 ) sky1 0 0 0 1 1
 ( 2048 256 2152 ) ( 2048 256 2156 ) ( 2048 260 2152 ) sky1 0 0 0 1 1
 }
+// brush 6
+{
+( -1984 -256 2024 ) ( -1984 -252 2024 ) ( -1984 -256 2028 ) sky1 0 0 0 1 1
+( -192 -2048 2024 ) ( -192 -2048 2028 ) ( -188 -2048 2024 ) sky1 0 0 0 1 1
+( -192 -256 2024 ) ( -188 -256 2024 ) ( -192 -252 2024 ) sky1 0 0 0 1 1
+( 320 256 2088 ) ( 320 260 2088 ) ( 324 256 2088 ) sky1 0 0 0 1 1
+( 320 2048 2152 ) ( 324 2048 2152 ) ( 320 2048 2156 ) sky1 0 0 0 1 1
+( 2112 256 2152 ) ( 2112 256 2156 ) ( 2112 260 2152 ) sky1 0 0 0 1 1
+}
+// brush 7
+{
+( -1920 -256 2024 ) ( -1920 -252 2024 ) ( -1920 -256 2028 ) sky1 0 0 0 1 1
+( -128 -2048 2024 ) ( -128 -2048 2028 ) ( -124 -2048 2024 ) sky1 0 0 0 1 1
+( -128 -256 2024 ) ( -124 -256 2024 ) ( -128 -252 2024 ) sky1 0 0 0 1 1
+( 384 256 2088 ) ( 384 260 2088 ) ( 388 256 2088 ) sky1 0 0 0 1 1
+( 384 2048 2152 ) ( 388 2048 2152 ) ( 384 2048 2156 ) sky1 0 0 0 1 1
+( 2176 256 2152 ) ( 2176 256 2156 ) ( 2176 260 2152 ) sky1 0 0 0 1 1
+}
+// brush 8
+{
+( -1856 -256 2024 ) ( -1856 -252 2024 ) ( -1856 -256 2028 ) sky1 0 0 0 1 1
+( -64 -2048 2024 ) ( -64 -2048 2028 ) ( -60 -2048 2024 ) sky1 0 0 0 1 1
+( -64 -256 2024 ) ( -60 -256 2024 ) ( -64 -252 2024 ) sky1 0 0 0 1 1
+( 448 256 2088 ) ( 448 260 2088 ) ( 452 256 2088 ) sky1 0 0 0 1 1
+( 448 2048 2152 ) ( 452 2048 2152 ) ( 448 2048 2156 ) sky1 0 0 0 1 1
+( 2240 256 2152 ) ( 2240 256 2156 ) ( 2240 260 2152 ) sky1 0 0 0 1 1
+}
 }
 // entity 1
 {
 "classname" "info_player_coop"
-"origin" "832 1856 -1948"
-"angle" "0"
+"origin" "848 1904 -1928"
+"angle" "270"
 }
 // entity 2
 {
 "classname" "info_player_deathmatch"
-"origin" "832 1600 -1948"
-"angle" "0"
+"origin" "848 1840 -1928"
+"angle" "270"
 }
 // entity 3
 {
 "classname" "info_player_start"
-"origin" "832 1344 -1948"
-"angle" "0"
+"origin" "848 1776 -1928"
+"angle" "270"
+}
+// entity 4
+{
+"classname" "info_player_deathmatch"
+"origin" "912 1840 -1928"
+"angle" "270"
+}
+// entity 5
+{
+"classname" "info_player_coop"
+"origin" "912 1904 -1928"
+"angle" "270"
+}
+// entity 6
+{
+"classname" "info_player_deathmatch"
+"origin" "976 1840 -1928"
+"angle" "270"
+}
+// entity 7
+{
+"classname" "info_player_coop"
+"origin" "976 1904 -1928"
+"angle" "270"
+}
+// entity 8
+{
+"classname" "info_player_deathmatch"
+"origin" "1040 1840 -1928"
+"angle" "270"
+}
+// entity 9
+{
+"classname" "info_player_coop"
+"origin" "1040 1904 -1928"
+"angle" "270"
+}
+// entity 10
+{
+"classname" "info_player_coop"
+"origin" "784 1904 -1928"
+"angle" "270"
+}
+// entity 11
+{
+"classname" "info_player_deathmatch"
+"origin" "784 1840 -1928"
+"angle" "270"
+}
+// entity 12
+{
+"classname" "info_player_coop"
+"origin" "720 1904 -1928"
+"angle" "270"
+}
+// entity 13
+{
+"classname" "info_player_deathmatch"
+"origin" "720 1840 -1928"
+"angle" "270"
+}
+// entity 14
+{
+"classname" "info_player_coop"
+"origin" "656 1904 -1928"
+"angle" "270"
+}
+// entity 15
+{
+"classname" "info_player_deathmatch"
+"origin" "656 1840 -1928"
+"angle" "270"
+}
+// entity 16
+{
+"classname" "info_player_coop"
+"origin" "592 1904 -1928"
+"angle" "270"
+}
+// entity 17
+{
+"classname" "info_player_deathmatch"
+"origin" "592 1840 -1928"
+"angle" "270"
+}
+// entity 18
+{
+"classname" "info_game_start"
+"origin" "816 1648 -1928"
 }

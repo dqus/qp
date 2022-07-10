@@ -64,18 +64,107 @@
 // entity 1
 {
 "classname" "info_player_coop"
-"origin" "3328 7424 -7996"
-"angle" "0"
+"origin" "3344 8144 -7976"
+"angle" "270"
 }
 // entity 2
 {
 "classname" "info_player_deathmatch"
-"origin" "3328 6400 -7996"
-"angle" "0"
+"origin" "3344 8080 -7976"
+"angle" "270"
 }
 // entity 3
 {
 "classname" "info_player_start"
-"origin" "3328 5376 -7996"
-"angle" "0"
+"origin" "3344 8016 -7976"
+"angle" "270"
+}
+// entity 4
+{
+"classname" "info_player_coop"
+"origin" "3408 8144 -7976"
+"angle" "270"
+}
+// entity 5
+{
+"classname" "info_player_deathmatch"
+"origin" "3408 8080 -7976"
+"angle" "270"
+}
+// entity 6
+{
+"classname" "info_player_coop"
+"origin" "3472 8144 -7976"
+"angle" "270"
+}
+// entity 7
+{
+"classname" "info_player_deathmatch"
+"origin" "3472 8080 -7976"
+"angle" "270"
+}
+// entity 8
+{
+"classname" "info_player_coop"
+"origin" "3536 8144 -7976"
+"angle" "270"
+}
+// entity 9
+{
+"classname" "info_player_deathmatch"
+"origin" "3536 8080 -7976"
+"angle" "270"
+}
+// entity 10
+{
+"classname" "info_player_coop"
+"origin" "3280 8144 -7976"
+"angle" "270"
+}
+// entity 11
+{
+"classname" "info_player_deathmatch"
+"origin" "3280 8080 -7976"
+"angle" "270"
+}
+// entity 12
+{
+"classname" "info_player_coop"
+"origin" "3216 8144 -7976"
+"angle" "270"
+}
+// entity 13
+{
+"classname" "info_player_deathmatch"
+"origin" "3216 8080 -7976"
+"angle" "270"
+}
+// entity 14
+{
+"classname" "info_player_coop"
+"origin" "3152 8144 -7976"
+"angle" "270"
+}
+// entity 15
+{
+"classname" "info_player_deathmatch"
+"origin" "3152 8080 -7976"
+"angle" "270"
+}
+// entity 16
+{
+"classname" "info_player_coop"
+"origin" "3088 8144 -7976"
+"angle" "270"
+}
+// entity 17
+{
+"classname" "info_player_deathmatch"
+"origin" "3088 8080 -7976"
+"angle" "270"
+}
+// entity 18
+{
+"classname" "info_game_start"
+"origin" "3280 7920 -7976"
 }

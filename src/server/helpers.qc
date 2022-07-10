@@ -1,3 +1,5 @@
+bool isAlive(entity e);
+
 void safe_remove(entity e)
 {
 	if (e != __NULL__)
@@ -34,12 +36,29 @@ entity nextplayer(entity from)
 float countplayers()
 {
 	float players = 0;
-	entity p = world;
-
-	while ((p = find(p, classname, "player")))
+	for (entity e = world; (e = nextplayer(e));) {
 		players += 1;
-
+	}
 	return players;
+}
+
+float countAlivePlayers()
+{
+	float players = 0;
+	for (entity e = world; (e = nextplayer(e));) {
+		if (isAlive(e))
+			players += 1;
+	}
+	return players;
+}
+
+bool haveAlivePlayers()
+{
+	for (entity e = world; (e = nextplayer(e));) {
+		if (isAlive(e))
+			return true;
+	}
+	return false;
 }
 
 // Check if entity would clip with something solid at location. Returns true if clipping detected.

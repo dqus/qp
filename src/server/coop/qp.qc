@@ -89,8 +89,8 @@ static monster_t monsters[] =
 	},
 };
 
-// find monster_t in array by classname.
-static monster_t *qp_find_monster_by_classname(string classname)
+// find monster_t in the monsters array by classname.
+static monster_t *findMonsterByClassname(string classname)
 {
 	for (int i = 0; i < monsters.length; i++) {
 		if (monsters[i].classname == classname)
@@ -104,52 +104,102 @@ bool isQP()
 	return getkey(mode) == "qp";
 }
 
-// called each time something/someone is killed.
-void qp_killed_hook(entity killed, entity attacker)
+// Do required actions at start of the game for each player.
+static void preparePlayersForGame()
+{
+	for (entity e = world; (e = nextplayer(e));) {
+		if (isDead(e))
+			continue; // Player is dead, his fault, not going to forcebly respawn him.
+		// Give red armor and health.
+		e.items &= ~(IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3);
+		e.items |= IT_ARMOR3;
+		e.armortype = 0.8;
+		e.armorvalue = 200;
+		e.health = 250;
+		// Reset frags.
+		e.frags = 0;
+	}
+}
+
+static void game_start_disable();
+static void game_start_enable();
+
+// Start the game.
+static void startGame(entity starter)
+{
+	if (serverstate == SS_PLAYING)
+		return;
+	string starterName = (starter.classname == "player" ? starter.netname : "server");
+	bPrintf(PRINT_HIGH, "%s ^2""started the game\n", starterName);
+	game_start_disable();
+	preparePlayersForGame();
+	serverstate = SS_PLAYING;
+}
+
+// Stop the game.
+static void stopGame()
+{
+	if (serverstate == SS_PREWAR)
+		return;
+	bPrintf(PRINT_HIGH, "^1""game over\n");
+	game_start_enable();
+	serverstate = SS_PREWAR;
+}
+
+// Stop the game if required.
+static void checkStopGame(void)
+{
+	if (serverstate == SS_PREWAR)
+		return;
+	// If we found at least one alive player then do not stop the game.
+	if (haveAlivePlayers())
+		return;
+	// All players dead, end game now!
+	stopGame();
+}
+
+// Called each time something/someone is killed.
+void qpKilled(entity killed, entity attacker)
 {
 	if (serverstate != SS_PLAYING)
 		return;
 
-	// if killed was a player then check for endmatch.
-	if (killed.flags & FL_CLIENT)
-	{
-//		qp_check_end_match();
+	// If killed was a player then check for endmatch.
+	if (killed.flags & FL_CLIENT) {
+		checkStopGame();
 		return;
 	}
 
-	// alive players regen health for killing monsters.
+	// Alive players regen health for killing monsters.
 	if (isDead(attacker) || !(attacker.flags & FL_CLIENT))
 		return;
 	// 'killed' could be a monter or trigger, we need monster.
 	if (!(killed.flags & FL_MONSTER))
 		return;
 
-	monster_t *monster = qp_find_monster_by_classname(killed.classname);
+	monster_t *monster = findMonsterByClassname(killed.classname);
 	if (!monster)
-		return; // monster not found, should not be the case.
-
-	if (attacker.health < 250 && monster->hp_for_kill > 0)
-	{
+		return; // Monster not found, should not be the case.
+	// HP regen.
+	if (attacker.health < 250 && monster->hp_for_kill > 0) {
 		attacker.health += monster->hp_for_kill;
-		attacker.health = min(attacker.health, 250); // cap it at 250
+		attacker.health = min(attacker.health, 250); // Cap it at 250
 	}
-
-	if (attacker.armorvalue < 200 && monster->armor_for_kill > 0)
-	{
+	// Armor regen.
+	if (attacker.armorvalue < 200 && monster->armor_for_kill > 0) {
 		attacker.armorvalue += monster->armor_for_kill;
-		attacker.armorvalue = min(attacker.armorvalue, 200); // cap it at 200
-		// remove all armors and add red armor.
+		attacker.armorvalue = min(attacker.armorvalue, 200); // Cap it at 200
+		// Remove all armors and add red armor.
 		attacker.items &= ~(IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3);
 		attacker.items |= IT_ARMOR3;
 		attacker.armortype = 0.8;
 	}
-
-	// bump the score according to monster difficulty
+	// Bump the score according to monster difficulty.
 	if (monster->hp_for_kill > 1)
 		attacker.frags += monster->hp_for_kill - 1;
 }
 
-// Find best enemy for monster.
+// Find best enemy (player) for monster.
 entity qp_checkclient(void)
 {
 	if (!isQP())
@@ -170,34 +220,33 @@ entity qp_checkclient(void)
 	return best;
 }
 
-int monsters_alive_count(void)
+// Returns alive monsters count.
+int monstersAliveCount(void)
 {
 	int count = 0;
-	for (entity mon = nextent(world); mon != world; mon = nextent(mon))
-	{
+	for (entity mon = nextent(world); mon != world; mon = nextent(mon)) {
 		if((mon.flags & FL_MONSTER) && isAlive(mon))
-		{
 			count++;
-		}
 	}
 	return count;
 }
 
-bool remove_monster_if_location_occupied(void)
+// Remove self if self.origin occupied by something.
+bool removeMonsterIfLocationOccupied(void)
 {
 	if (!isQP())
 		return false;
 
 	setorigin(self, self.origin);
-	if (is_location_occupied(self, self.origin))
-	{
+	if (is_location_occupied(self, self.origin)) {
 		remove(self);
 		return true;
 	}
 	return false;
 }
 
-static void monster_fade(void)
+// Reduce entity alpha time to time till it zero, when alpha becomes zero remove entity at all.
+static void entityFade(void)
 {
 	self.alpha -= 0.025;
 	if (self.alpha <= 0) {
@@ -207,14 +256,51 @@ static void monster_fade(void)
 	self.nextthink = time + 0.05;
 }
 
-// Init body fading in qp mode.
-void monster_init_fade(entity e)
+// Init body/gibs fading in qp mode.
+void initEntityFade(entity e)
 {
 	e.alpha = 1;
-	e.think = monster_fade;
+	e.think = entityFade;
 	e.nextthink = time + 2 + random() * 3;
 }
 
+static void game_start_disable()
+{
+	for (entity e = world; (e = find(e, classname, "info_game_start"));) {
+		e.solid = SOLID_NOT;
+		e.model = "";
+	}
+}
+
+static void game_start_enable()
+{
+	for (entity e = world; (e = find(e, classname, "info_game_start"));) {
+		e.solid = SOLID_TRIGGER;
+		e.model = e.mdl;
+	}
+}
+
+void game_start_touch()
+{
+	if (other.classname != "player" || isDead(other))
+		return;
+	startGame(other);
+}
+
+/*QUAKED info_game_start (0 0 0) (-16 -16 -24) (16 16 32)
+*/
+void info_game_start(void)
+{
+	precache_model("progs/quaddama.mdl");
+	setmodel(self, "progs/quaddama.mdl");
+	self.effects |= EF_BLUE;
+	self.touch = game_start_touch;
+	setsize(self, '-16 -16 -24', '16 16 32');
+	StartItem();
+}
+
+/*QUAKED info_monster_start (0 0 0) (-32 -32 -24) (32 32 64)
+*/
 void info_monster_start(void)
 {
 	if (total_spots < 0)
@@ -222,7 +308,8 @@ void info_monster_start(void)
 	total_spots++;
 }
 
-static entity find_monster_spawn_spot()
+// Randomly choose spawn spot for monster.
+static entity findMonsterSpawnSpot()
 {
 	static entity mon_spawn;
 	// Spawn spots defined by the map itself.
@@ -244,20 +331,20 @@ static entity find_monster_spawn_spot()
 }
 
 // Remove monsters if match is not in progress.
-static void remove_monsters(void)
+static void removeMonsters(void)
 {
 	if (serverstate == SS_PLAYING)
 		return; // Game in progress, nothing to remove.
 
-	for (entity m = world; (m = nextent(m));)
-	{
+	for (entity m = world; (m = nextent(m));) {
 		if (!(m.flags & FL_MONSTER))
 			continue; // not a monster
 		remove(m);
 	}
 }
 
-static entity spawn_one_monster_do(monster_t mon, entity spot)
+// Spawn mon at spot.
+static entity spawnOneMonsterDo(monster_t mon, entity spot)
 {
 	entity oself = self; // Remember self.
 	entity spawned = spawn();
@@ -267,58 +354,54 @@ static entity spawn_one_monster_do(monster_t mon, entity spot)
 	setorigin(self, spot.origin);
 	mon.spawn();
 	self = oself; // Restore self.
-	if (wasfreed(spawned))
-	{
+	if (wasfreed(spawned)) {
 		return __NULL__; // Seems spawned entity was removed.
 	}
 	return spawned;
 }
 
-static entity spawn_one_monster(void)
+// Choose random monster from monsters array and spawn it at random spot.
+static entity spawnOneMonster(void)
 {
 	// Find random spawn point.
-	entity spot = find_monster_spawn_spot();
+	entity spot = findMonsterSpawnSpot();
 	// Can't find.
 	if (!spot)
 		return __NULL__;
 	// Randomly select monster.
 	monster_t mon = monsters[i_rnd(0, monsters.length - 1)];
 	// Spawn monster.
-	return spawn_one_monster_do(mon, spot);
+	return spawnOneMonsterDo(mon, spot);
 }
 
-static void precache_monsters(void)
+// Precache monsters from monsters array by spawning it and immediate remove.
+static void precacheMonsters(void)
 {
 	for (int i = 0; i < monsters.length; i++) {
 		monster_t mon = monsters[i];
-		safe_remove(spawn_one_monster_do(mon, world));
+		safe_remove(spawnOneMonsterDo(mon, world));
 	}
 }
 
-static void spawn_monsters(void)
+// Spawn monsters if possible.
+static void spawnMonsters(void)
 {
 	// Precache all monsters at frame 2.
 	if (framecount == 2)
-	{
-		precache_monsters();
-	}
+		precacheMonsters();
 	// Check various conditions if we are ready for spawning monsters.
 	if (serverstate != SS_PLAYING
-		|| time < 3 || framecount < 100 || monsters_alive_count() >= 1)
-	{
+		|| time < 3 || framecount < 100 || monstersAliveCount() >= 1)
 		return;
-	}
 	// Attempt to spawn one monster.
 	// We trying to do it few times in row since we can fail because spawn point is busy or something.
-	for (int i = 0; i < 30; i++)
-	{
-		if (spawn_one_monster())
-		{
+	for (int i = 0; i < 30; i++) {
+		if (spawnOneMonster())
 			return;
-		}
 	}
 }
 
+// QP hook to worldspawn().
 void qp_worldspawn()
 {
 	// Check if map geometry (simple box) let us calculate spawn points for monsters instead of using entities for spawns.
@@ -328,13 +411,13 @@ void qp_worldspawn()
 	}
 }
 
+// QP hook to StartFrame().
 void qp_think(void)
 {
 	if (!isQP() || total_spots == 0)
-	{
 		return; // qp mode disabled or map does not support it.
-	}
 
-	spawn_monsters();
-	remove_monsters();
+	checkStopGame();
+	spawnMonsters();
+	removeMonsters();
 }

@@ -247,7 +247,7 @@ static cmdHandled_t handle_setinfo(string key, string value)
 		return CMD_PASS_TO_ENGINE; // Let spectator do whatever he wants with setinfo, we does not care.
 
 	if (key == "team" || key == "name") {
-		if (serverstate == SS_COUNTDOWN || serverstate == SS_PLAYING) {
+		if (serverstate != SS_PREWAR) {
 			cPrintf(self, PRINT_HIGH, "You cannot change %s while the game is in progress\n", key);
 			return CMD_HANDLED; // Does not pass command to the engine, so team/name stay the same.
 		}

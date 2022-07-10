@@ -43,8 +43,8 @@ void qp_worldspawn();
 void qp_think(void);
 // Find best enemy for monster.
 entity qp_checkclient(void);
-bool remove_monster_if_location_occupied(void);
+bool removeMonsterIfLocationOccupied(void);
 // Init body fading in qp mode.
-void monster_init_fade(entity e);
+void initEntityFade(entity e);
 // called each time something/someone is killed.
-void qp_killed_hook(entity killed, entity attacker);
+void qpKilled(entity killed, entity attacker);

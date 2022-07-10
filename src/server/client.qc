@@ -345,8 +345,6 @@ void trigger_changelevel ()
 =============================================================================
 */
 
-void set_suicide_frame ();
-
 // called by ClientKill and DeadThink
 void respawn ()
 {
@@ -396,16 +394,10 @@ void ClientKill ()
 		sprint (self, PRINT_HIGH, "Only one suicide per second\n");
 		return;
 	}
-
 	self.suicide_time = time + 1;
 
-	bprint (PRINT_MEDIUM, self.netname, " suicides\n");
-
-	set_suicide_frame ();
-	self.modelindex = modelindex_player;
-	logfrag (self, self);
-	self.frags = self.frags - 2;    // extra penalty
-	respawn ();
+	self.deathtype = "suicide";
+	T_Damage(self, self, self, 999999);
 }
 
 
@@ -584,17 +576,6 @@ void PutClientInServer ()
 
 	self.velocity = VEC_ORIGIN;
 
-	player_stand1 ();
-
-	if (deathmatch || coop)
-	{
-		makevectors(self.angles);
-		play_teleport (self);
-		spawn_tfog (self.origin + v_forward*20);
-	}
-
-	spawn_tdeath (self.origin, self);
-
 	if (deathmatch == 4 || isQP())
 	{
 		self.ammo_shells = 0;
@@ -618,9 +599,13 @@ void PutClientInServer ()
 		self.items = self.items | IT_PENT;
 		self.invincible_time = 1;
 		self.invincible_finished = time + 3;
-	}
 
-	if (deathmatch == 5)
+		if (isQP()) {
+			self.items |= IT_QUAD;
+			self.super_time = 1;
+			self.super_damage_finished = 99999999; // infinity.
+		}
+	} else if (deathmatch == 5)
 	{
 		self.ammo_nails = 80;
 		self.ammo_shells = 30;
@@ -641,10 +626,21 @@ void PutClientInServer ()
 		self.invincible_finished = time + 3;
 	}
 
-	if (isQP()) {
-		self.items |= IT_QUAD;
-		self.super_time = 1;
-		self.super_damage_finished = 99999999; // infinity.
+	if (serverstate == SS_PLAYING && isQP()) {
+		// Kill connecting player if game is in progress.
+		self.deathtype = "connect_suicide";
+		T_Damage(self, self, self, 999999);
+	} else {
+		player_stand1 ();
+
+		if (deathmatch || coop)
+		{
+			makevectors(self.angles);
+			play_teleport (self);
+			spawn_tfog (self.origin + v_forward*20);
+		}
+
+		spawn_tdeath (self.origin, self);
 	}
 }
 
@@ -809,6 +805,10 @@ void PlayerDeathThink ()
 	self.button0 = 0;
 	self.button1 = 0;
 	self.button2 = 0;
+
+	if (serverstate == SS_PLAYING && isQP())
+		return; // Could not respawn if game is in progress.
+
 	respawn();
 }
 
@@ -1254,6 +1254,20 @@ void ClientConnect ()
 		SendIntermissionToClient ();
 }
 
+static void set_important_fields()
+{
+	self.takedamage = DAMAGE_NO;
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NONE;
+	self.deadflag = DEAD_DEAD;
+	self.health = 0;
+	self.frame = 0;
+	self.modelindex = 0;
+	self.model = "";
+	self.nextthink = -1;
+	self.flags = 0; // Remove FL_CLIENT flag.
+	self.classname = "";
+}
 
 /*
 ===========
@@ -1273,10 +1287,7 @@ void ClientDisconnect ()
 	s = ftos(self.frags);
 	bprint (PRINT_HIGH, self.netname, " left the game with ", s, " frags\n");
 	sound (self, CHAN_BODY, "player/tornoff2.wav", 1, ATTN_NONE);
-	set_suicide_frame ();
-	self.health = 0; // So isDead() will work properly.
-
-	self.classname = "";	// don't turn up in find()
+	set_important_fields ();
 }
 
 /*
@@ -1294,6 +1305,9 @@ void ClientObituary (entity targ, entity attacker)
 
 	if (targ.classname != "player")
 		return;
+
+	if (targ.deathtype == "connect_suicide")
+		return; // Someone trying to connect while game in progress, avoid abusive messages.
 
 	rnum = random();
 	//ZOID 12-13-96: self.team doesn't work in QW.  Use keys
@@ -1372,7 +1386,9 @@ void ClientObituary (entity targ, entity attacker)
 			// killed self
 			logfrag (attacker, attacker);
 			attacker.frags = attacker.frags - 1;
-			if (targ.deathtype == "grenade")
+			if (targ.deathtype == "suicide")
+				bprint (PRINT_MEDIUM, targ.netname, " suicides\n");
+			else if (targ.deathtype == "grenade")
 				bprint (PRINT_MEDIUM, targ.netname, " tries to put the pin back in\n");
 			else if (targ.deathtype == "rocket")
 				bprint (PRINT_MEDIUM, targ.netname, " becomes bored with life\n");

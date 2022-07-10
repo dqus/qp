@@ -124,7 +124,7 @@ void Killed (entity targ, entity attacker)
 	self = oself;
 
 	if (isQP())
-		qp_killed_hook(targ, attacker);
+		qpKilled(targ, attacker);
 }
 
 
@@ -144,8 +144,7 @@ void T_Damage (entity targ, entity inflictor, entity attacker, float damage)
 	float	take;
 	string	attackerteam, targteam;
 
-
-	if (!targ.takedamage)
+	if (!targ.takedamage || isDead(targ))
 		return;
 
 // used by buttons and triggers to set activator for target firing
@@ -199,24 +198,19 @@ void T_Damage (entity targ, entity inflictor, entity attacker, float damage)
 			targ.flags &= ~FL_ONGROUND;
 	}
 
-
-
 // check for godmode or invincibility
-	if (targ.flags & FL_GODMODE)
+	if (targ.deathtype == "suicide" || targ.deathtype == "connect_suicide") {
+		// Suicide - ignore godmode/pent and teamplay damage avoidance.
+	} else if (targ.flags & FL_GODMODE) {
 		return;
-	if (targ.invincible_finished >= time)
-	{
-		if (targ.invincible_sound < time)
-		{
+	} else if (targ.invincible_finished >= time) {
+		if (targ.invincible_sound < time) {
 			sound (targ, CHAN_ITEM, "items/protect3.wav", 1, ATTN_NORM);
 			targ.invincible_sound = time + 2;
 		}
 		return;
-	}
-
+	} else if (teamplay == 1 || teamplay == 3) {
 // team play damage avoidance
-	if (teamplay == 1 || teamplay == 3)
-	{
 		attackerteam = infokey(attacker, "team");
 		targteam = infokey(targ, "team");
 
