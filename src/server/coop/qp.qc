@@ -3,6 +3,7 @@
 //
 
 static int total_spots; // Total amount of monster spawn spots.
+static float gameStartTime; // Time when game started.
 
 typedef struct
 {
@@ -104,6 +105,31 @@ bool isQP()
 	return getkey(mode) == "qp";
 }
 
+// Time since game started or zero if game is not in progress, could be zero if game just started, though.
+float gameTime()
+{
+	if (serverstate != SS_PLAYING)
+		return 0;
+	return time - gameStartTime;
+}
+
+static void startDemoRecord()
+{
+	if (!getkey(demorecord))
+		return;
+	string date = strftime(true, "%Y%m%d-%H%M");
+	string name = strcat(getkey(mode), "_", mapname, "_", date);
+	localcmd("easyrecord", " ", name, "\n");
+}
+
+static void stopDemoRecord()
+{
+	if (gameTime() < 30)
+		localcmd("cancel\n");
+	else
+		localcmd("stop\n");
+}
+
 // Do required actions at start of the game for each player.
 static void preparePlayersForGame()
 {
@@ -129,11 +155,13 @@ static void startGame(entity starter)
 {
 	if (serverstate == SS_PLAYING)
 		return;
+	gameStartTime = time;
 	string starterName = (starter.classname == "player" ? starter.netname : "server");
 	bPrintf(PRINT_HIGH, "%s ^2""started the game\n", starterName);
 	game_start_disable();
 	preparePlayersForGame();
 	serverstate = SS_PLAYING;
+	startDemoRecord();
 }
 
 // Stop the game.
@@ -142,6 +170,7 @@ static void stopGame()
 	if (serverstate == SS_PREWAR)
 		return;
 	bPrintf(PRINT_HIGH, "^1""game over\n");
+	stopDemoRecord();
 	game_start_enable();
 	serverstate = SS_PREWAR;
 }

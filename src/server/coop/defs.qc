@@ -48,3 +48,5 @@ bool removeMonsterIfLocationOccupied(void);
 void initEntityFade(entity e);
 // called each time something/someone is killed.
 void qpKilled(entity killed, entity attacker);
+// Time since game started or zero if game is not in progress, could be zero if game just started, though.
+float gameTime();

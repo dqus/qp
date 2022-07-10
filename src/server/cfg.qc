@@ -1,5 +1,6 @@
 #define GAMEVARS	\
-	GVS(mode,	"qp",	"Game mode")
+	GVS(mode,					"qp",		"Game mode") \
+	GVF(demorecord,				1,			"Record server side demo")
 
 #define GVF(n,v,d) var float autocvar_g_##n = v;
 #define GVS(n,v,d) var string autocvar_g_##n = v;
