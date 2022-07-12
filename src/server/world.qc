@@ -36,6 +36,11 @@ void main ()
 
 entity  lastspawn;
 
+void initents(void)
+{
+	PMove_Init();
+}
+
 //=======================
 /*QUAKED worldspawn (0 0 0) ?
 Only used for the world entity.
@@ -253,6 +258,8 @@ void worldspawn ()
 
 void StartFrame ()
 {
+	PMove_StartFrame();
+
 #ifdef FRIKBOT
 	BotFrame(); // FrikBot
 #endif

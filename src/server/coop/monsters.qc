@@ -28,6 +28,51 @@
 //		<code>
 // }
 
+const int CONTENTBIT_BOTCLIP = 0x00400000i;
+const int CONTENTBITS_MONSTER = CONTENTBIT_SOLID|CONTENTBIT_BODY|CONTENTBIT_MONSTERCLIP|CONTENTBIT_BOTCLIP;	
+static void monster_physics(void)
+{
+	input_movevalues = [0,0,0];
+	input_impulse = 0;
+	input_buttons = 0;
+	input_angles = self.angles; //self.v_angle;
+	input_timelength = frametime;
+
+	if (self.movetype == MOVETYPE_WALK) {
+//		CheckRoute();
+//		WalkRoute();
+
+		self.hitcontentsmaski = CONTENTBITS_MONSTER;
+//		if (CanCrouch())
+//			PMoveCustom_RunCrouchPhysics(self);
+//		else
+			PMoveCustom_RunPlayerPhysics(self);
+
+		setorigin(self, self.origin);
+//		IdleNoise();
+
+		self.button8 = input_buttons & INPUT_BUTTON8; // duck
+	}
+
+#if 0
+	if (!(flags & FL_ONGROUND) && velocity[2] < -415) {
+		if (!(m_iFlags & MSF_FALLING))
+			FallNoise();
+
+		m_iFlags |= MSF_FALLING;
+	} else {
+		m_iFlags &= ~MSF_FALLING;
+	}
+#endif
+
+	/* support for think/nextthink */
+	if (self.think && self.nextthink > 0.0f) {
+		if (self.nextthink < time) {
+			self.nextthink = 0.0f;
+			self.think();
+		}
+	}
+}
 
 /*
 ================
@@ -133,6 +178,9 @@ void walkmonster_start ()
 {
 	if (removeMonsterIfLocationOccupied())
 		return;
+
+	self.customphysics = monster_physics;
+
 // delay drop to floor to make sure all doors have been spawned
 // spread think times so they don't all happen at same time
 	self.nextthink = time + 0.1 + random()*0.5;

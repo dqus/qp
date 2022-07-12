@@ -5,6 +5,7 @@
 #pragma warning disable F326 // FIXME: get rid of it.
 
 #define QWSSQC
+#define SERVER
 
 #includelist
 
@@ -16,6 +17,9 @@ coop/defs.qc
 cfg.qc
 subs.qc
 helpers.qc
+
+../shared/pmove.qc
+../shared/pmove_custom.qc
 
 combat.qc
 items.qc

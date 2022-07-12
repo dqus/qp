@@ -17,6 +17,13 @@ typedef struct
 static monster_t monsters[] =
 {
 	{
+		.classname = "monster_army",
+		.spawn = monster_army,
+		.hp_for_kill = 1,
+		.armor_for_kill = 1
+	},
+#if 0
+	{
 		.classname = "monster_dog",
 		.spawn = monster_dog,
 		.hp_for_kill = 1,
@@ -43,12 +50,6 @@ static monster_t monsters[] =
 	{
 		.classname = "monster_knight",
 		.spawn = monster_knight,
-		.hp_for_kill = 1,
-		.armor_for_kill = 1
-	},
-	{
-		.classname = "monster_army",
-		.spawn = monster_army,
 		.hp_for_kill = 1,
 		.armor_for_kill = 1
 	},
@@ -88,6 +89,7 @@ static monster_t monsters[] =
 		.hp_for_kill = 2,
 		.armor_for_kill = 1
 	},
+#endif
 };
 
 // find monster_t in the monsters array by classname.

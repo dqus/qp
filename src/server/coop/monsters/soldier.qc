@@ -340,7 +340,7 @@ void monster_army ()
 
 
 	self.solid = SOLID_SLIDEBOX;
-	self.movetype = MOVETYPE_STEP;
+	self.movetype = MOVETYPE_WALK;
 
 	setmodel (self, "progs/soldier.mdl");
 
