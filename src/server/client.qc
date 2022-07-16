@@ -521,6 +521,8 @@ void PutClientInServer ()
 {
 	entity	spot;
 
+	self.customphysics = SUB_Null;
+
 	self.spawn_time = time;
 	self.classname = "player";
 	self.health = 100;
@@ -960,7 +962,7 @@ void PlayerPreThink ()
 	self.deathtype = "";
 
 	CheckRules ();
-	WaterMove ();
+//	WaterMove ();
 
 	if (self.deadflag >= DEAD_DEAD)
 	{
@@ -971,6 +973,7 @@ void PlayerPreThink ()
 	if (self.deadflag == DEAD_DYING)
 		return; // dying, so do nothing
 
+#if 0
 	if (self.button2)
 	{
 		PlayerJump ();
@@ -981,6 +984,8 @@ void PlayerPreThink ()
 // teleporters can force a non-moving pause time
 	if (time < self.pausetime)
 		self.velocity = VEC_ORIGIN;
+
+#endif
 
 	if(time > self.attack_finished && self.currentammo == 0 && self.weapon != IT_AXE)
 	{
@@ -1195,6 +1200,7 @@ void PlayerPostThink ()
 	if (self.deadflag)
 		return;
 
+#if 0
 // check to see if player landed and play landing sound
 	if ((self.jump_flag < -300) && (self.flags & FL_ONGROUND) )
 	{
@@ -1218,6 +1224,7 @@ void PlayerPostThink ()
 	}
 
 	self.jump_flag = self.velocity_z;
+#endif
 
 	CheckPowerups ();
 

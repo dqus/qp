@@ -32,11 +32,17 @@
 	#define INPUT_BUTTON7 0x00000040
 	#define INPUT_BUTTON8 0x00000080
 
+	#define FL_WATERJUMP		(1<<11)
+	#define FL_JUMPRELEASED		(1<<12)
 	#define FL_ONLADDER			(1<<13)
 	#define FL_CROUCHING		(1<<17)
+	#define FL_FROZEN			(1<<19)
 
-	.float jumptime; // FIXME: unused, remove me.
-	.vector basevelocity; // FIXME: unused, remove me.
+	.float waterlevel;
+	.float watertype;
+	.float maxspeed;
+	.vector view_ofs;
+	.entity groundentity;
 // }
 
 	void PMoveCustom_Init(void);
@@ -62,7 +68,7 @@
 #endif
 
 #ifndef PMOVE_STOPSPEED
-	#define PMOVE_STOPSPEED 75
+	#define PMOVE_STOPSPEED 100
 #endif
 
 #ifndef PMOVE_GRAVITY
@@ -74,15 +80,15 @@
 #endif
 
 #ifndef PMOVE_WATERACCELERATE
-	#define PMOVE_WATERACCELERATE 8
+	#define PMOVE_WATERACCELERATE 10
 #endif
 
 #ifndef PMOVE_ACCELERATE
-	#define PMOVE_ACCELERATE 8
+	#define PMOVE_ACCELERATE 10
 #endif
 
 #ifndef PMOVE_MAXSPEED
-	#define PMOVE_MAXSPEED 270
+	#define PMOVE_MAXSPEED 320
 #endif
 
 #ifndef PMOVE_STEP_WALKSPEED
@@ -94,7 +100,7 @@
 #endif
 
 #ifndef PHY_VIEWPOS
-	#define PHY_VIEWPOS [0,0,28]
+	#define PHY_VIEWPOS [0,0,22]
 #endif
 
 #ifndef PHY_VIEWPOS_CROUCHED
@@ -120,11 +126,11 @@
  * scrapping hull sizes for their .bsp format... 
  * however, you can offset them */
 #ifndef PHY_HULL_MIN
-	#define PHY_HULL_MIN [-16,-16,-36]
+	#define PHY_HULL_MIN [-16,-16,-24]
 #endif
 
 #ifndef PHY_HULL_MAX
-	#define PHY_HULL_MAX [16,16,36]
+	#define PHY_HULL_MAX [16,16,32]
 #endif
 
 #ifndef PHY_HULL_CROUCHED_MIN
@@ -176,6 +182,19 @@ PMove_StartFrame(void)
 	PMoveCustom_StartFrame();
 	#endif
 }
+
+void Player_Physics_Run(void);
+
+void
+SV_RunClientCommand(void)
+{
+	if (self.classname != "player") {
+		return;
+	}
+
+	Player_Physics_Run();
+}
+
 #endif
 
 /* simple bounds check */

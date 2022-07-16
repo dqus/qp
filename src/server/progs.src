@@ -20,6 +20,7 @@ helpers.qc
 
 ../shared/pmove.qc
 ../shared/pmove_custom.qc
+../shared/player_pmove.qc
 
 combat.qc
 items.qc

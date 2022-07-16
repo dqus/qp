@@ -28,7 +28,7 @@ PMoveCustom_UpdateVar(string info, string cv)
 {
 	float d = cvar(cv);
 	if (serverkeyfloat(info) != d) {
-		readcmd(sprintf("serverinfo %s %d\n", info, d));
+		readcmd(sprintf("serverinfo %s %g\n", info, d));
 	}
 }
 
@@ -84,10 +84,6 @@ PMoveCustom_Categorize(void)
 		if ((trace_fraction < 1) && (trace_plane_normal[2] > 0.7)) {
 			self.flags |= FL_ONGROUND;
 			self.groundentity = trace_ent;
-
-			if (self.groundentity) {
-				self.basevelocity += self.groundentity.velocity;
-			}
 		} else {
 			self.flags &= ~FL_ONGROUND;
 		}
@@ -96,9 +92,6 @@ PMoveCustom_Categorize(void)
 	}
 
 	self.flags &= ~FL_WATERJUMP;
-
-	/*if (self.basevelocity[2] > 0)
-		self.flags &= ~FL_ONGROUND;*/
 
 	/* ladder content testing */
 	int oldhitcontents = self.hitcontentsmaski;
@@ -242,7 +235,7 @@ PMoveCustom_AccelFriction(float move_time, float premove, vector wish_dir, float
 		flFriction = vlen(vecTemp);
 
 		// if the leading edge is over a dropoff, increase friction
-		vecTemp = self.origin + normalize(vecTemp) * 16 + [0,0,1] * PHY_HULL_MIN[2];
+		vecTemp = self.origin + normalize(vecTemp) * PHY_HULL_MAX[1] + [0,0,PHY_HULL_MIN[2]];
 		traceline(vecTemp, vecTemp + [0,0,-34], TRUE, self);
 
 		// apply friction
@@ -304,9 +297,6 @@ PMoveCustom_Acceleration(float move_time, float premove)
 	vector wish_dir;
 	float wish_speed;
 
-	self.jumptime -= move_time;
-	self.teleport_time -= move_time;
-
 	makevectors(input_angles);
 
 	/* figure out where we are in the world */
@@ -362,19 +352,32 @@ PMoveCustom_Acceleration(float move_time, float premove)
 	}
 }
 
+static void Monster_Touch(entity eToucher)
+{
+#ifdef SERVER
+	if (self.movetype != MOVETYPE_WALK || eToucher.movetype != MOVETYPE_WALK)
+		return;
+
+	if (eToucher.absmin[2] < self.origin[2])
+		self.velocity += normalize(eToucher.origin - self.origin) * -128;
+#endif
+}
+
 /* touch other solid entities */
 void
-PMoveCustom_DoTouch(entity tother)
+PMoveCustom_DoTouch(entity toucher)
 {
-	bPrintf(PRINT_HIGH, "touch: self:%s toucher:%s\n", self.classname, tother.classname);
-
-	entity oself = self;
-	if (tother.touch) {
-		other = self;
-		self = tother;
+	entity o_other = other;
+	other = self;
+	entity o_self = self;
+	self = toucher;
+	// HACK for monsters.
+	if (self.flags & FL_MONSTER)
+		Monster_Touch(other);
+	if (self.touch)
 		self.touch();
-	}
-	self = oself;
+	other = o_other;
+	self = o_self;
 }
 
 /* bounce us back off a place normal */
@@ -458,11 +461,6 @@ PMoveCustom_Move(void)
 	if (self.movetype == MOVETYPE_NOCLIP) {
 		self.origin = self.origin + self.velocity * input_timelength;
 		return;
-	}
-
-	/* hacky attempt at base-velocity, this needs to be cleared/wiped at the end */
-	if (!(self.flags & FL_ONGROUND)) {
-		self.basevelocity[2] = 0;
 	}
 
 	/* we need to bounce off surfaces (in order to slide along them), 
@@ -586,9 +584,6 @@ PMoveCustom_RunPlayerPhysics(entity target)
 	self.angles = input_angles;
 	self.angles[0] *= -0.333;
 
-	/* clear base-velocity and ground-entity */
-	self.basevelocity = [0,0,0];
-
 	/* activate any SOLID_TRIGGER entities */
 	touchtriggers();
 	self = oldself;
@@ -606,7 +601,7 @@ PMoveCustom_RunCrouchPhysics(entity target)
 	} else {	
 		// If we aren't holding down duck anymore and 'attempt' to stand up, prevent it
 		if (target.flags & FL_CROUCHING) {
-			if (PMove_IsStuck(target, [0,0,36], PHY_HULL_MIN, PHY_HULL_MAX) == FALSE) {
+			if (PMove_IsStuck(target, [0,0,PHY_HULL_MAX[2]], PHY_HULL_MIN, PHY_HULL_MAX) == FALSE) {
 				target.flags &= ~FL_CROUCHING;
 				iFixCrouch = TRUE;
 			}

@@ -1,0 +1,23 @@
+#pragma target fte
+#pragma progs_dat "../../qp.pk3dir/csprogs.dat"
+//#pragma autoproto // kinda broken in fteqcc
+#pragma warning disable F210
+
+#define CSQC
+#define CLIENT
+
+#includelist
+
+../shared/fteextensions.qc
+../shared/defs.qc
+defs.qc
+
+../shared/pmove.qc
+../shared/pmove_custom.qc
+../shared/player_pmove.qc
+
+entrypoints.qc
+
+prediction.qc
+
+#endlist

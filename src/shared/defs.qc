@@ -18,3 +18,16 @@ __wrap entity spawn()
 	e.spawn_time = time;
 	return e;
 }
+
+/* tries to make sure an angle value stays within certain constraints...
+ * however it doesn't account for much larger discrepancies */
+float Math_FixDelta(float fDelta)
+{
+	if (fDelta >= 180) {
+		fDelta -= 360;
+	} else if (fDelta <= -180) {
+		fDelta += 360;
+	}
+
+	return fDelta;
+}
